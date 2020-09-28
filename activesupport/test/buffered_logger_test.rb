@@ -1,6 +1,7 @@
 require 'abstract_unit'
 require 'stringio'
 require 'fileutils'
+require 'tempfile'
 
 class BufferedLoggerTest < Test::Unit::TestCase
   def setup
@@ -142,5 +143,57 @@ class BufferedLoggerTest < Test::Unit::TestCase
     @logger.send :buffer
     @logger.expects :clear_buffer
     @logger.flush
+  end
+
+  if defined?(Encoding)
+    def test_log_mixed_encodings
+      prior_external = Encoding.default_external
+      Encoding.default_external = Encoding::US_ASCII
+      utf8_string = "some ütf-8"
+      ascii_8bit_string = "some 8bit\xFF".force_encoding(Encoding::ASCII_8BIT)
+      @logger.auto_flushing = false
+      @logger.info(ascii_8bit_string)
+      @logger.info(utf8_string)
+      @logger.flush
+
+      @output.set_encoding(Encoding::BINARY)
+      utf8_string.force_encoding(Encoding::BINARY)
+      assert(@output.string.include?(utf8_string))
+      assert(@output.string.include?(ascii_8bit_string))
+    ensure
+      Encoding.default_external = prior_external
+    end
+
+    def test_write_binary_data_to_existing_file
+      t = Tempfile.new ['development', 'log']
+      t.binmode
+      t.write 'hi mom!'
+      t.close
+
+      logger = ActiveSupport::BufferedLogger.new(t.path)
+      logger.level = Logger::DEBUG
+
+      str = "\x80".force_encoding("ASCII-8BIT")
+
+      logger.add Logger::DEBUG, str
+      logger.flush
+    ensure
+      logger.close
+      t.close true
+    end
+
+    def test_write_binary_data_create_file
+      fname = File.join Dir.tmpdir, 'lol', 'rofl.log'
+      logger = ActiveSupport::BufferedLogger.new(fname)
+      logger.level = Logger::DEBUG
+
+      str = "\x80".force_encoding("ASCII-8BIT")
+
+      logger.add Logger::DEBUG, str
+      logger.flush
+    ensure
+      logger.close
+      File.unlink fname
+    end
   end
 end

@@ -1,4 +1,5 @@
 require 'thread'
+require 'stringio'
 
 module ActiveSupport
   # Inspired by the buffered logger idea by Ezra
@@ -49,10 +50,12 @@ module ActiveSupport
       elsif File.exist?(log)
         @log = open(log, (File::WRONLY | File::APPEND))
         @log.sync = true
+        encode_as_binary(@log)
       else
         FileUtils.mkdir_p(File.dirname(log))
         @log = open(log, (File::WRONLY | File::APPEND | File::CREAT))
         @log.sync = true
+        encode_as_binary(@log)
         @log.write("# Logfile created on %s" % [Time.now.to_s])
       end
     end
@@ -97,8 +100,13 @@ module ActiveSupport
     def flush
       @guard.synchronize do
         unless buffer.empty?
-          old_buffer = buffer
-          @log.write(old_buffer.join)
+          binary_output = StringIO.new
+          encode_as_binary(binary_output)
+          buffer.each do |entry|
+            binary_output << entry
+          end
+
+          @log.write(binary_output.string)
         end
 
         # Important to do this even if buffer was empty or else @buffer will
@@ -124,6 +132,13 @@ module ActiveSupport
 
       def clear_buffer
         @buffer.delete(Thread.current)
+      end
+
+    private
+      def encode_as_binary(io)
+        if defined?(::Encoding::BINARY)
+          io.set_encoding(::Encoding::BINARY)
+        end
       end
   end
 end
