@@ -164,6 +164,19 @@ class BufferedLoggerTest < Test::Unit::TestCase
       Encoding.default_external = prior_external
     end
 
+    def test_log_mixed_encodings_with_underlying_io_object_with_encoding
+      @output.set_encoding(Encoding::US_ASCII)
+      @output.write('some ütf-8')
+      # @output is now in a weird state where it will neither accept BINARY nur US_ASCII encodings
+      @logger = ActiveSupport::BufferedLogger.new(@output)
+      ascii_8bit_string = "some 8bit\xFF".force_encoding(Encoding::ASCII_8BIT)
+      @logger.auto_flushing = false
+      @logger.info(ascii_8bit_string)
+      @logger.flush
+
+      assert(@output.string.include?('some 8bit'))
+    end
+
     def test_write_binary_data_to_existing_file
       t = Tempfile.new ['development', 'log']
       t.binmode

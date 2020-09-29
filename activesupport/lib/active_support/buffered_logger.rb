@@ -100,13 +100,33 @@ module ActiveSupport
     def flush
       @guard.synchronize do
         unless buffer.empty?
+          # this is bascially an encoding-safe join
           binary_output = StringIO.new
           encode_as_binary(binary_output)
           buffer.each do |entry|
             binary_output << entry
           end
 
-          @log.write(binary_output.string)
+          joined_string = binary_output.string
+
+          if defined?(::Encoding::CompatibilityError)
+            begin
+              @log.write(joined_string)
+            rescue ::Encoding::CompatibilityError
+              # @log must be an external IO object that does not like binary data
+              # we will try again without any conversions to simulate prior behavior
+              begin
+                @log.write(buffer.join)
+              rescue ::Encoding::CompatibilityError
+                # still fails
+                # since we have no reliable way to determine an acceptable encoding
+                # convert to US_ASCII, which is lossy, but should be compatible with everything
+                @log.write(joined_string.encode(Encoding::US_ASCII, :invalid => :replace, :undef => :replace))
+              end
+            end
+          else
+            @log.write(joined_string)
+          end
         end
 
         # Important to do this even if buffer was empty or else @buffer will
