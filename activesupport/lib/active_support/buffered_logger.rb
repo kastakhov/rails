@@ -107,25 +107,26 @@ module ActiveSupport
             binary_output << entry
           end
 
-          joined_string = binary_output.string
+          joined_binary_string = binary_output.string
 
           if defined?(::Encoding::CompatibilityError)
             begin
-              @log.write(joined_string)
-            rescue ::Encoding::CompatibilityError
-              # @log must be an external IO object that does not like binary data
+              @log.write(joined_binary_string)
+            rescue
+              # @log (probably an external IO object) seems to not like binary data
+              # and raises some exception
               # we will try again without any conversions to simulate prior behavior
               begin
                 @log.write(buffer.join)
               rescue ::Encoding::CompatibilityError
-                # still fails
-                # since we have no reliable way to determine an acceptable encoding
+                # still fails, because the buffer contains incompatible strings
+                # since we have no reliable way to determine an acceptable encoding for @log
                 # convert to US_ASCII, which is lossy, but should be compatible with everything
-                @log.write(joined_string.encode(Encoding::US_ASCII, :invalid => :replace, :undef => :replace))
+                @log.write(joined_binary_string.encode(Encoding::US_ASCII, :invalid => :replace, :undef => :replace))
               end
             end
           else
-            @log.write(joined_string)
+            @log.write(joined_binary_string)
           end
         end
 

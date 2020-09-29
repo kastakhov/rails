@@ -4,6 +4,18 @@ require 'fileutils'
 require 'tempfile'
 
 class BufferedLoggerTest < Test::Unit::TestCase
+  if defined?(Encoding)
+    class IOWithAllergyToBinary < StringIO
+      def write(data)
+        if data.encoding == Encoding::BINARY
+          raise "i'm not compatible with binary"
+        else
+          super
+        end
+      end
+    end
+  end
+
   def setup
     @message = "A debug message"
     @integer_message = 12345
@@ -175,6 +187,20 @@ class BufferedLoggerTest < Test::Unit::TestCase
       @logger.flush
 
       assert(@output.string.include?('some 8bit'))
+    end
+
+    def test_log_with_an_io_object_that_does_not_like_binary
+      output = IOWithAllergyToBinary.new
+      output.set_encoding(Encoding::UTF_8)
+      logger = ActiveSupport::BufferedLogger.new(output)
+
+      logger.auto_flushing = false
+      logger.info("some ütf-8")
+      logger.info("more ütf-8")
+      logger.flush
+
+      assert_equal Encoding::UTF_8, output.string.encoding
+      assert_equal "some ütf-8\nmore ütf-8\n", output.string
     end
 
     def test_write_binary_data_to_existing_file
