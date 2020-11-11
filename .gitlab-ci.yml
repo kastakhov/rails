@@ -15,6 +15,9 @@
     ruby-2.5:
       variables:
         BUNDLE_GEMFILE: /repo/Gemfile.2.5
+    ruby-2.7:
+      variables:
+        BUNDLE_GEMFILE: /repo/Gemfile.2.7
 
 
 .lts_job: &lts_job
@@ -56,6 +59,10 @@
   BUNDLE_GEMFILE: Gemfile.2.5
   RBENV_VERSION: "2.5"
 
+.ruby-2.7: &ruby_2_7
+  BUNDLE_GEMFILE: Gemfile.2.7
+  RBENV_VERSION: "2.7"
+
 
 # ============= Actual jobs ================
 
@@ -79,3 +86,10 @@ ruby-2.5:
     <<: *lts_job_variables
     <<: *ruby_2_5
     PROMPT: 'rails 2.3 : ruby 2.5'
+
+ruby-2.7:
+  <<: *lts_job
+  variables:
+    <<: *lts_job_variables
+    <<: *ruby_2_7
+    PROMPT: 'rails 2.3 : ruby 2.7'
