@@ -192,5 +192,20 @@ module ActiveSupport
           @keys.delete_if {|k| !has_key?(k)}
         end
     end
+
+    # Ruby 2.7 raises an ArgumentError when calling Hash.[] with non-array items.
+    # This restores OrderedHash behavior to avoid breaking legacy code.
+    if RUBY_VERSION >= '2.7'
+      def self.[](*args)
+        if args.length == 1 && args.first.is_a?(Array)
+          items = args.first
+
+          valid_items = items.all?(Array) ? items : items.select { |key_value_pair| key_value_pair.is_a?(Array) }
+          super(valid_items)
+        else
+          super
+        end
+      end
+    end
   end
 end
