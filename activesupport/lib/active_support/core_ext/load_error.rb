@@ -1,5 +1,11 @@
 module MissingSourceFileSupport
-  module Constants
+  module IsMissing
+    def is_missing?(path)
+      path.gsub(/\.rb$/, '') == self.path.gsub(/\.rb$/, '')
+    end
+  end
+
+  module Regexps
     REGEXPS = [
       [/^cannot load such file -- (.+)$/i, 1],
       [/^no such file to load -- (.+)$/i, 1],
@@ -7,20 +13,13 @@ module MissingSourceFileSupport
       [/^Missing API definition file in (.+)$/i, 1]
     ]
   end
-
-  def self.included(klass)
-    klass::REGEXPS ||= Constants::REGEXPS
-  end
-
-  def is_missing?(path)
-    path.gsub(/\.rb$/, '') == self.path.gsub(/\.rb$/, '')
-  end
 end
 
-if RUBY_VERSION < '2.6.0'
+if RUBY_VERSION < '2.6'
 
   class MissingSourceFile < LoadError #:nodoc:
-    include MissingSourceFileSupport
+    include MissingSourceFileSupport::IsMissing
+    include MissingSourceFileSupport::Regexps unless defined?(REGEXPS)
 
     attr_reader :path
     def initialize(message, path)
@@ -53,19 +52,25 @@ if RUBY_VERSION < '2.6.0'
 else
 
   class LoadError
-    include MissingSourceFileSupport
-
-    unless method_defined?(:path)
-      # Returns the path which was unable to be loaded.
+    module PathFromMessage
       def path
-        @path ||= begin
-          REGEXPS.find do |regex|
-            message =~ regex
-          end
-          Regexp.last_match(1)
+        super || path_from_message
+      end
+
+      private
+
+      def path_from_message
+        LoadError::REGEXPS.each do |regexp, capture|
+          match = regexp.match(message)
+          return match[capture] if match
         end
+        nil # no match
       end
     end
+
+    prepend PathFromMessage
+    include MissingSourceFileSupport::IsMissing
+    include MissingSourceFileSupport::Regexps unless defined?(REGEXPS)
   end
 
   MissingSourceFile = LoadError
