@@ -188,7 +188,11 @@ module ActiveRecord
 
       def select_rows(sql, name = nil)
         execute(sql, name).map do |row|
-          (0...(row.size / 2)).map { |i| row[i] }
+          if SQLite3::VERSION >= '1.4'
+            row.values
+          else
+            (0...(row.size / 2)).map { |i| row[i] }
+          end
         end
       end
 
