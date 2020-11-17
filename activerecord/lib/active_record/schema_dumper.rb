@@ -159,7 +159,9 @@ HEADER
         when Date, DateTime, Time
           "'" + value.to_s(:db) + "'"
         else
-          value.inspect
+          string = value.inspect
+          string = string.dup if RUBY_VERSION >= '2.7' && string.frozen?
+          string
         end
       end
       
