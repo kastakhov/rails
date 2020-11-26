@@ -10,7 +10,7 @@ end
 
 if RUBY_VERSION >= '2.6' && defined?(Mysql2::Error)
 
-  Mysql2::Error.class_eval do
+  Mysql2::Error.class_eval <<-RUBY
     prepend(Module.new do
       class StringWithClassicEncode < String
         def encode(options)
@@ -28,6 +28,6 @@ if RUBY_VERSION >= '2.6' && defined?(Mysql2::Error)
         super(StringWithClassicEncode.new(message), *args)
       end
     end)
-  end
+  RUBY
 
 end

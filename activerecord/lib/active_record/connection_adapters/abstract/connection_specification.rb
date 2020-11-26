@@ -76,7 +76,7 @@ module ActiveRecord
               raise "Please install the #{spec[:adapter]} adapter: `gem install activerecord-#{spec[:adapter]}-adapter` (#{$!})"
             end
           ensure
-            require 'active_record/core_ext/mysql2' if spec[:adapter] == 'mysql2'
+            require 'active_record/ext/mysql2' if spec[:adapter] == 'mysql2'
           end
 
           adapter_method = "#{spec[:adapter]}_connection"
