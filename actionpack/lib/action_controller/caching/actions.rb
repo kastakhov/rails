@@ -154,7 +154,7 @@ module ActionController #:nodoc:
           path = controller.url_for(options).split('://').last
           normalize!(path)
           add_extension!(path, @extension)
-          @path = URI.unescape_uri(path)
+          @path = RailsLts::Support::URI.unescape_uri(path)
         end
 
         private

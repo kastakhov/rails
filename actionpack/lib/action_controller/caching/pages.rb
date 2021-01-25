@@ -103,7 +103,7 @@ module ActionController #:nodoc:
 
         private
           def page_cache_file(path)
-            name = (path.empty? || path == "/") ? "/index" : URI.unescape_uri(path.chomp('/'))
+            name = (path.empty? || path == "/") ? "/index" : RailsLts::Support::URI.unescape_uri(path.chomp('/'))
             name << page_cache_extension unless (name.split('/').last || name).include? '.'
             return name
           end
