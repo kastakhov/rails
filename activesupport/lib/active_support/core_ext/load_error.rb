@@ -1,30 +1,14 @@
-module MissingSourceFileSupport
-  module IsMissing
-    def is_missing?(path)
-      path.gsub(/\.rb$/, '') == self.path.gsub(/\.rb$/, '')
-    end
-  end
-
-  module Regexps
-    REGEXPS = [
-      [/^cannot load such file -- (.+)$/i, 1],
-      [/^no such file to load -- (.+)$/i, 1],
-      [/^Missing \w+ (file\s*)?([^\s]+.rb)$/i, 2],
-      [/^Missing API definition file in (.+)$/i, 1]
-    ]
-  end
-end
-
 if RUBY_VERSION < '2.6'
 
   class MissingSourceFile < LoadError #:nodoc:
-    include MissingSourceFileSupport::IsMissing
-    include MissingSourceFileSupport::Regexps unless defined?(REGEXPS)
-
     attr_reader :path
     def initialize(message, path)
       super(message)
       @path = path
+    end
+
+    def is_missing?(path)
+      path.gsub(/\.rb$/, '') == self.path.gsub(/\.rb$/, '')
     end
 
     def self.from_message(message)
@@ -34,6 +18,13 @@ if RUBY_VERSION < '2.6'
       end
       nil
     end
+
+    REGEXPS = [
+      [/^cannot load such file -- (.+)$/i, 1],
+      [/^no such file to load -- (.+)$/i, 1],
+      [/^Missing \w+ (file\s*)?([^\s]+.rb)$/i, 2],
+      [/^Missing API definition file in (.+)$/i, 1]
+    ] unless defined?(REGEXPS)
   end
 
   module ActiveSupport #:nodoc:
@@ -52,6 +43,17 @@ if RUBY_VERSION < '2.6'
 else
 
   class LoadError
+    REGEXPS = [
+      [/^cannot load such file -- (.+)$/i, 1],
+      [/^no such file to load -- (.+)$/i, 1],
+      [/^Missing \w+ (file\s*)?([^\s]+.rb)$/i, 2],
+      [/^Missing API definition file in (.+)$/i, 1]
+    ] unless defined?(REGEXPS)
+
+    def is_missing?(path)
+      path.gsub(/\.rb$/, '') == self.path.gsub(/\.rb$/, '')
+    end
+
     module PathFromMessage
       def path
         super || path_from_message
@@ -69,8 +71,6 @@ else
     end
 
     prepend PathFromMessage
-    include MissingSourceFileSupport::IsMissing
-    include MissingSourceFileSupport::Regexps unless defined?(REGEXPS)
   end
 
   MissingSourceFile = LoadError
