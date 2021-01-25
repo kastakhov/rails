@@ -195,6 +195,7 @@ module ActiveSupport
 
     # Ruby 2.7 raises an ArgumentError when calling Hash.[] with non-array items.
     # This restores OrderedHash behavior to avoid breaking legacy code.
+    # See `test_alternate_initialization_with_array` in activesupport/test/ordered_hash_test.rb.
     if RUBY_VERSION >= '2.7'
       def self.[](*args)
         if args.length == 1 && args.first.is_a?(Array)
