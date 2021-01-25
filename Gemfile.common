@@ -1,4 +1,8 @@
-source 'https://rubygems.org'
+if RUBY_VERSION < '1.9'
+  source 'https://gemstash.makandra.de'
+else
+  source 'https://rubygems.org'
+end
 
 gem 'rdoc', '=2.5.11'
 gem 'mocha', '=0.9.7'
