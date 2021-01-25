@@ -49,6 +49,9 @@ module RailsLts
 
       if RUBY_VERSION >= '1.9'
         module ModernRubySupport
+          # Utility methods to escape/unescape URI characters.
+          # Adapted from Rails 4.2, see actionpack/lib/action_dispatch/journey/router/utils.rb in the 4.2 repo.
+
           ENCODE   = '%%%02X'.freeze
           US_ASCII = Encoding::US_ASCII
           UTF_8    = Encoding::UTF_8

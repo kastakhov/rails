@@ -19,4 +19,20 @@ class URIExtTest < Test::Unit::TestCase
       end
     end
   end
+
+  if RUBY_VERSION >= '2.6'
+    # Tests inspired by Rails 4.2 (actionpack/test/journey/router/utils_test.rb)
+
+    def test_railslts_support_uri_escape_unsafe_characters
+      assert_equal "a/b%20c+d%25", RailsLts::Support::URI.escape_unsafe_characters("a/b c+d%", /[^\/a-z0-9+]/)
+      assert_equal "a%2Fb%20c+d%25", RailsLts::Support::URI.escape_unsafe_characters("a/b c+d%", /[^a-z0-9+]/)
+      assert_equal "a/b%20c+d%25?e", RailsLts::Support::URI.escape_unsafe_characters("a/b c+d%?e", /[^\/a-z0-9+?]/)
+    end
+
+    def test_railslts_support_uri_unescape_safe_characters
+      assert_equal "a/b c+d", RailsLts::Support::URI.unescape_uri("a%2Fb%20c+d")
+      assert_equal "Šašinková", RailsLts::Support::URI.unescape_uri("%C5%A0a%C5%A1inkov%C3%A1".force_encoding(Encoding::US_ASCII))
+    end
+  end
+
 end
