@@ -136,6 +136,44 @@ class TranslationHelperTest < ActiveSupport::TestCase
     assert_equal [], translation
   end
 
+  def test_translate_with_default_named_html
+    translation = translate(:'translations.missing', :default => :'translations.hello_html')
+    assert_equal '<a>Hello World</a>', translation
+    assert_equal true, translation.html_safe?
+  end
+
+  def test_translate_with_missing_default
+    translation = translate(:'translations.missing', :default => :'translations.missing_html')
+    expected = '<span class="translation_missing">en, translations, missing_html</span>'
+    assert_equal expected, translation
+    assert_equal true, translation.html_safe?
+  end
+
+  def test_translate_with_two_defaults_named_html
+    translation = translate(:'translations.missing', :default => [:'translations.missing_html', :'translations.hello_html'])
+    assert_equal '<a>Hello World</a>', translation
+    assert_equal true, translation.html_safe?
+  end
+
+  def test_translate_with_last_default_named_html
+    translation = translate(:'translations.missing', :default => [:'translations.missing', :'translations.hello_html'])
+    assert_equal '<a>Hello World</a>', translation
+    assert_equal true, translation.html_safe?
+  end
+
+  def test_translate_with_last_default_not_named_html
+    translation = translate(:'translations.missing', :default => [:'translations.missing_html', :'translations.foo'])
+    assert_equal 'Foo', translation
+    assert_equal false, translation.html_safe?
+  end
+
+  def test_translate_html_key_with_html_default
+    translation = translate(:'translations.missing_html', :default => :'translations.hello_html')
+    assert_equal '<a>Hello World</a>', translation
+    assert_equal true, translation.html_safe?
+  end
+
+
   # Tests for CVE-2020-15169
 
   def test_translate_does_not_mark_unsourced_string_default_as_html_safe

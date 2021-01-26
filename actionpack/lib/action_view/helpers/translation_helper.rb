@@ -19,6 +19,13 @@ module ActionView
 
         options[:raise] = true
 
+        options = options.dup
+        has_default = options.has_key?(:default)
+        remaining_defaults = Array(options.delete(:default)).compact
+        if has_default && !remaining_defaults.first.kind_of?(Symbol)
+          options[:default] = remaining_defaults
+        end
+
         translations = keys.map do |key|
           qualified_key = scope_key_by_partial(key)
           if html_safe_translation_key?(qualified_key)
@@ -36,9 +43,7 @@ module ActionView
             translation = I18n.translate(qualified_key, html_safe_options)
 
             if translation.equal?(MISSING_TRANSLATION)
-              # I18n.translate does not support Symbols as references to other translations (like Rails 4.2+ would)
-              # and returns the first non-nil, non-Symbol `:default` value. For consistency, we mimic this behavior:
-              Array(options[:default]).detect { |default| default && !default.is_a?(Symbol) }
+              options[:default].first
             else
               translation.respond_to?(:html_safe) ? translation.html_safe : translation
             end
@@ -54,8 +59,14 @@ module ActionView
         end
 
       rescue I18n::MissingTranslationData => e
-        keys = I18n.send(:normalize_translation_keys, e.locale, e.key, e.options[:scope])
-        content_tag('span', keys.join(', '), :class => 'translation_missing')
+        if remaining_defaults.present?
+          first_default = remaining_defaults.shift
+          remaining_options = options.merge(:default => remaining_defaults)
+          translate(first_default, remaining_options)
+        else
+          keys = I18n.send(:normalize_translation_keys, e.locale, e.key, e.options[:scope])
+          content_tag('span', keys.join(', '), :class => 'translation_missing')
+        end
       end
       alias :t :translate
 
