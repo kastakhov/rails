@@ -164,7 +164,7 @@ namespace :railslts do
     task :ensure_ready do
       jobs = [
         "Did you update the version in railslts-version/lib/railslts-version.rb (currently #{RailsLts::VERSION::STRING})?",
-        'Did you update the LICENSE files using `rake railslts:update_license?',
+        'Did you update the LICENSE files using `rake railslts:update_license`?',
         'Did you commit and push your changes, as well as the changes by the Rake tasks mentioned above?',
         'Did you build static gems using `rake railslts:gems:build` (those are not pushed to Git)?',
         'Did you activate key forwarding for *.railslts.makandra.de?',
