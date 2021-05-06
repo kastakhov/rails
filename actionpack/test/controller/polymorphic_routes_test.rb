@@ -1,5 +1,19 @@
 require 'abstract_unit'
 
+module AssertRaiseWithMessage
+  def assert_raise_with_message(expected_exception, expected_message)
+    begin
+      error_raised = false
+      yield
+    rescue expected_exception => error
+      error_raised = true
+      actual_message = error.message
+    end
+    assert error_raised
+    assert_equal expected_message, actual_message
+  end
+end
+
 class Article
   attr_reader :id
   def save; @id = 1 end
@@ -36,13 +50,31 @@ end
 class Response::Nested < Response; end
 
 class PolymorphicRoutesTest < ActiveSupport::TestCase
-  include ActionController::PolymorphicRoutes
+  module MockedRailsLogger
+    class Rails
+      def self.logger
+        @logger ||= Logger.new(StringIO.new)
+      end
+    end
+  end
+
+  PolymorphicRoutesWithLogger = ActionController::PolymorphicRoutes.dup
+  PolymorphicRoutesWithLogger.send(:include, MockedRailsLogger)
+
+  include PolymorphicRoutesWithLogger
+  include AssertRaiseWithMessage
 
   def setup
     @article = Article.new
     @response = Response.new
     @tax = Tax.new
     @fax = Fax.new
+    @old_configuration = RailsLts.configuration
+    RailsLts.configuration = RailsLts::Configuration.new(:default => :compatible)
+  end
+
+  def teardown
+    RailsLts.configuration = @old_configuration
   end
 
   def test_with_record
@@ -293,5 +325,28 @@ class PolymorphicRoutesTest < ActiveSupport::TestCase
   def test_with_array_containing_symbols
     expects(:new_article_url).with()
     polymorphic_url([:new, :article])
+  end
+
+  def test_with_array_containing_strings
+    assert_raise_with_message(ArgumentError, 'Please use symbols for polymorphic route arguments, or disable this check. See https://makandracards.com/railslts/498656.') do
+      polymorphic_url([:new, 'article'])
+    end
+    assert_raise_with_message(ArgumentError, 'Please use symbols for polymorphic route arguments, or disable this check. See https://makandracards.com/railslts/498656.') do
+      polymorphic_url([:new, 'nested', :article])
+    end
+  end
+
+  def test_with_array_containing_strings_when_allowed_by_lts_options
+    RailsLts.configuration.allow_strings_for_polymorphic_paths = true
+
+    Rails.logger.expects(:warn).with('Please use symbols for polymorphic route arguments. See https://makandracards.com/railslts/498656.')
+    $stderr.expects(:puts).with('Please use symbols for polymorphic route arguments. See https://makandracards.com/railslts/498656.')
+    expects(:new_article_url).with()
+    polymorphic_url([:new, 'article'])
+
+    Rails.logger.expects(:warn).with('Please use symbols for polymorphic route arguments. See https://makandracards.com/railslts/498656.')
+    $stderr.expects(:puts).with('Please use symbols for polymorphic route arguments. See https://makandracards.com/railslts/498656.')
+    expects(:new_nested_article_url).with()
+    polymorphic_url([:new, 'nested', :article])
   end
 end

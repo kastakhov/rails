@@ -656,6 +656,10 @@ Run `rake gems:install` to install the missing gems.
     end
 
     def configure_rails_lts
+      unless Rails.configuration.rails_lts_options
+        $stderr.puts(%{Please configure your rails_lts_options using config.rails_lts_options inside Rails::Initializer.run. Defaulting to "rails_lts_options = { :default => :compatible }. See https://makandracards.com/railslts/16311-configuring-rails-lts for documentation."})
+      end
+
       RailsLts::Configuration.prepare(Rails.configuration.rails_lts_options)
     end
 

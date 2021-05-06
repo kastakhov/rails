@@ -1,3 +1,5 @@
+require 'railslts'
+
 module ActionController
   # Polymorphic URL helpers are methods for smart resolution to a named route call when
   # given an Active Record model instance. They are to be used in combination with
@@ -158,8 +160,10 @@ module ActionController
         else
           record = records.pop
           route = records.inject("") do |string, parent|
-            if parent.is_a?(Symbol) || parent.is_a?(String)
+            if parent.is_a?(Symbol)
               string << "#{parent}_"
+            elsif parent.is_a?(String)
+              string << handle_string_route_part(parent)
             else
               string << RecordIdentifier.__send__("plural_class_name", parent).singularize
               string << "_"
@@ -167,8 +171,10 @@ module ActionController
           end
         end
 
-        if record.is_a?(Symbol) || record.is_a?(String)
+        if record.is_a?(Symbol)
           route << "#{record}_"
+        elsif record.is_a?(String)
+          route << handle_string_route_part(record)
         else
           route << RecordIdentifier.__send__("plural_class_name", record)
           route = route.singularize if inflection == :singular
@@ -183,6 +189,17 @@ module ActionController
           when Array; record_or_hash_or_array.last
           when Hash;  record_or_hash_or_array[:id]
           else        record_or_hash_or_array
+        end
+      end
+
+      def handle_string_route_part(route_part)
+        if RailsLts.configuration && RailsLts.configuration.allow_strings_for_polymorphic_paths
+          message = 'Please use symbols for polymorphic route arguments. See https://makandracards.com/railslts/498656.'
+          $stderr.puts(message)
+          Rails.logger.warn(message) if defined?(Rails.logger)
+          "#{route_part}_"
+        else
+          raise ArgumentError, 'Please use symbols for polymorphic route arguments, or disable this check. See https://makandracards.com/railslts/498656.'
         end
       end
   end

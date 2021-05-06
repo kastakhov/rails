@@ -12,6 +12,8 @@ module RailsLts
 
     attr_accessor :strict_unambiguous_table_names
 
+    attr_accessor :allow_strings_for_polymorphic_paths
+
     def self.prepare(rails_lts_options)
       RailsLts.configuration = new(rails_lts_options)
     end
@@ -21,10 +23,6 @@ module RailsLts
     end
 
     def initialize(options)
-      unless Rails.configuration.rails_lts_options
-        $stderr.puts(%{Please configure your rails_lts_options using config.rails_lts_options inside Rails::Initializer.run. Defaulting to "rails_lts_options = { :default => :compatible }. See https://makandracards.com/railslts/16311-configuring-rails-lts for documentation."})
-      end
-
       options ||= {}
 
       set_defaults(options.delete(:default) || :compatible)
@@ -51,11 +49,13 @@ module RailsLts
         self.disable_xml_parsing = true
         self.escape_html_entities_in_json = true
         self.strict_unambiguous_table_names = true
+        self.allow_strings_for_polymorphic_paths = false
       when :compatible
         self.disable_json_parsing = false
         self.disable_xml_parsing = false
         self.escape_html_entities_in_json = false
         self.strict_unambiguous_table_names = false
+        self.allow_strings_for_polymorphic_paths = false
       end
     end
 
