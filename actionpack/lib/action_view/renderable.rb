@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+require 'set'
+
 module ActionView
   # NOTE: The template that this mixin is being included into is frozen
   # so you cannot set or modify any instance variables
