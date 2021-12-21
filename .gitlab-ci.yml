@@ -1,6 +1,7 @@
 .rascal:
   variables:
     BUNDLE_PATH: /cache/bundle
+    CI: true
   volumes:
     cache: /cache
   before_shell:
@@ -18,10 +19,13 @@
     ruby-2.7:
       variables:
         BUNDLE_GEMFILE: /repo/Gemfile.2.7
+    postgresql-14:
+      variables:
+        BUNDLE_GEMFILE: /repo/Gemfile.2.5
 
 
 .lts_job: &lts_job
-  image: registry.makandra.de/rails-lts/rails-lts-docker/test-env
+  image: registry.makandra.de/rails-lts/rails-lts-docker/test-env:3.2
   services:
     - name: registry.makandra.de/rails-lts/rails-lts-docker/pg:9.1
       alias: pg-db
@@ -93,3 +97,15 @@ ruby-2.7:
     <<: *lts_job_variables
     <<: *ruby_2_7
     PROMPT: 'rails 2.3 : ruby 2.7'
+
+postgresql-14:
+  <<: *lts_job
+  services:
+    - name: registry.makandra.de/rails-lts/rails-lts-docker/pg:14.1
+      alias: pg-db
+  variables:
+    <<: *lts_job_variables
+    <<: *ruby_2_5
+    PROMPT: 'rails 2.3 : ruby 2.5 : postgres 14'
+  script:
+    - cd activerecord && BUNDLE_GEMFILE=../Gemfile.2.5 bundle exec rake postgresql:rebuild_databases test_postgresql
