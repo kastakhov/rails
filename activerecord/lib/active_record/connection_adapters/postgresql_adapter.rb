@@ -122,7 +122,7 @@ module ActiveRecord
         def self.extract_value_from_default(default)
           case default
             # Numeric types
-            when /\A\(?(-?\d+(\.\d*)?\)?)\z/
+            when /\A[\(']?(-?\d+(\.\d*)?[\)']?(::bigint|::integer)?)\z/
               $1
             # Character types
             when /\A'(.*)'::(?:character varying|bpchar|text)\z/m
@@ -266,7 +266,7 @@ module ActiveRecord
 
       # Enable standard-conforming strings if available.
       def set_standard_conforming_strings
-        old, self.client_min_messages = client_min_messages, 'panic'
+        old, self.client_min_messages = client_min_messages, 'error'
         execute('SET standard_conforming_strings = on') rescue nil
       ensure
         self.client_min_messages = old
@@ -625,7 +625,7 @@ module ActiveRecord
 
       # Returns the list of all tables in the schema search path or a specified schema.
       def tables(name = nil)
-        schemas = schema_search_path.split(/,/).map { |p| quote(p) }.join(',')
+        schemas = schema_search_path.split(/\s*,\s*/).map { |p| quote(p) }.join(',')
         query(<<-SQL, name).map { |row| row[0] }
           SELECT tablename
             FROM pg_tables
@@ -635,7 +635,7 @@ module ActiveRecord
 
       # Returns the list of all indexes for a table.
       def indexes(table_name, name = nil)
-         schemas = schema_search_path.split(/,/).map { |p| quote(p) }.join(',')
+         schemas = schema_search_path.split(/\s*,\s*/).map { |p| quote(p) }.join(',')
          result = query(<<-SQL, name)
            SELECT distinct i.relname, d.indisunique, d.indkey, t.oid
              FROM pg_class t, pg_class i, pg_index d
@@ -737,9 +737,20 @@ module ActiveRecord
           if sequence
             quoted_sequence = quote_column_name(sequence)
 
-            select_value <<-end_sql, 'Reset sequence'
-              SELECT setval('#{quoted_sequence}', (SELECT COALESCE(MAX(#{quote_column_name pk})+(SELECT increment_by FROM #{quoted_sequence}), (SELECT min_value FROM #{quoted_sequence})) FROM #{quote_table_name(table)}), false)
-            end_sql
+            if postgresql_version >= 100000
+              # backport from Rails 3
+              max_pk = select_value("SELECT MAX(#{quote_column_name pk}) from #{quote_table_name(table)}")
+              if max_pk.nil?
+                minvalue = select_value("SELECT seqmin from pg_sequence where seqrelid = '#{quoted_sequence}'::regclass")
+              end
+              select_value <<-end_sql, 'Reset sequence'
+                SELECT setval('#{quoted_sequence}', #{max_pk ? max_pk : minvalue}, #{max_pk ? true : false})
+              end_sql
+            else
+              select_value <<-end_sql, 'Reset sequence'
+                SELECT setval('#{quoted_sequence}', (SELECT COALESCE(MAX(#{quote_column_name pk})+(SELECT increment_by FROM #{quoted_sequence}), (SELECT min_value FROM #{quoted_sequence})) FROM #{quote_table_name(table)}), false)
+              end_sql
+            end
           else
             @logger.warn "#{table} has primary key #{pk} with no default sequence" if @logger
           end
@@ -774,10 +785,10 @@ module ActiveRecord
           result = query(<<-end_sql, 'PK and custom sequence')[0]
             SELECT attr.attname,
               CASE
-                WHEN split_part(def.adsrc, '''', 2) ~ '.' THEN
-                  substr(split_part(def.adsrc, '''', 2),
-                         strpos(split_part(def.adsrc, '''', 2), '.')+1)
-                ELSE split_part(def.adsrc, '''', 2)
+                WHEN split_part(#{adsrc_expr('def')}, '''', 2) ~ '.' THEN
+                  substr(split_part(#{adsrc_expr('def')}, '''', 2),
+                         strpos(split_part(#{adsrc_expr('def')}, '''', 2), '.')+1)
+                ELSE split_part(#{adsrc_expr('def')}, '''', 2)
               END
             FROM pg_class       t
             JOIN pg_attribute   attr ON (t.oid = attrelid)
@@ -785,7 +796,7 @@ module ActiveRecord
             JOIN pg_constraint  cons ON (conrelid = adrelid AND adnum = conkey[1])
             WHERE t.oid = '#{quote_table_name(table)}'::regclass
               AND cons.contype = 'p'
-              AND def.adsrc ~* 'nextval'
+              AND #{adsrc_expr('def')} ~* 'nextval'
           end_sql
         end
 
@@ -1057,7 +1068,7 @@ module ActiveRecord
         #  - ::regclass is a function that gives the id for a table name
         def column_definitions(table_name) #:nodoc:
           query <<-end_sql
-            SELECT a.attname, format_type(a.atttypid, a.atttypmod), d.adsrc, a.attnotnull
+            SELECT a.attname, format_type(a.atttypid, a.atttypmod), #{adsrc_expr('d')}, a.attnotnull
               FROM pg_attribute a LEFT JOIN pg_attrdef d
                 ON a.attrelid = d.adrelid AND a.attnum = d.adnum
              WHERE a.attrelid = '#{quote_table_name(table_name)}'::regclass
@@ -1073,6 +1084,17 @@ module ActiveRecord
             rest = name[match_data[0].length..-1]
             rest = rest[1..-1] if rest[0,1] == "."
             [match_data[1], (rest.length > 0 ? rest : nil)]
+          end
+        end
+
+        def adsrc_expr(table)
+          if postgresql_version >= 100000
+            # This way to query for attribute default is standard in newer Rails and probably works
+            # across all supported PG versions, but to be super paranoid, we'll only use if for
+            # PG versions that we are a 100% sure.
+            "pg_get_expr(#{table}.adbin, #{table}.adrelid)"
+          else
+            "#{table}.adsrc"
           end
         end
     end
