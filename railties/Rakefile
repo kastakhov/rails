@@ -302,7 +302,7 @@ spec = Gem::Specification.new do |s|
   s.summary = 'Tools for creating, working with, and running Rails applications.'
   s.description = 'Rails internals: application bootup, plugins, generators, and rake tasks.'
 
-  s.add_dependency('rake', '>= 0.8.3', '< 11')
+  s.add_dependency('rake', '>= 0.8.3')
   s.add_dependency('activesupport',    "= #{RailsLts::VERSION::STRING}")
   s.add_dependency('actionpack',       "= #{RailsLts::VERSION::STRING}")
 
