@@ -39,6 +39,9 @@ module ActionView
       #   tag("img", { :src => "open &amp; shut.png" }, false, false)
       #   # => <img src="open &amp; shut.png" />
       def tag(name, options = nil, open = false, escape = true)
+        if escape
+          name = ERB::Util.xml_name_escape(name)
+        end
         "<#{name}#{tag_options(options, escape) if options}#{open ? ">" : " />"}".html_safe
       end
 
@@ -126,6 +129,9 @@ module ActionView
 
         def content_tag_string(name, content, options, escape = true)
           tag_options = tag_options(options, escape) if options
+          if escape
+            name = ERB::Util.xml_name_escape(name)
+          end
           "<#{name}#{tag_options}>#{content}</#{name}>".html_safe
         end
 
@@ -137,7 +143,7 @@ module ActionView
                 if BOOLEAN_ATTRIBUTES.include?(key)
                   attrs << %(#{key}="#{key}") if value
                 else
-                  attrs << %(#{key}="#{escape_once(value)}") if !value.nil?
+                  attrs << %(#{ERB::Util.xml_name_escape(key)}="#{escape_once(value)}") if !value.nil?
                 end
               end
             else

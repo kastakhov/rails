@@ -3,6 +3,8 @@ require 'abstract_unit'
 class TagHelperTest < ActionView::TestCase
   tests ActionView::Helpers::TagHelper
 
+  COMMON_DANGEROUS_CHARS = "&<>\"' %*+,/;=^|"
+
   def test_tag
     assert_equal "<br />", tag("br")
     assert_equal "<br clear=\"left\" />", tag(:br, :clear => "left")
@@ -30,6 +32,29 @@ class TagHelperTest < ActionView::TestCase
   def test_tag_options_converts_boolean_option
     assert_equal '<p disabled="disabled" multiple="multiple" readonly="readonly" />',
       tag("p", :disabled => true, :multiple => true, :readonly => true)
+  end
+
+  def test_tag_with_dangerous_name
+    assert_equal "<#{"_" * COMMON_DANGEROUS_CHARS.size} />",
+                 tag(COMMON_DANGEROUS_CHARS)
+
+    assert_equal "<#{COMMON_DANGEROUS_CHARS} />",
+                 tag(COMMON_DANGEROUS_CHARS, nil, false, false)
+  end
+
+  def test_tag_with_dangerous_unknown_attribute_name
+    escaped_dangerous_chars = "_" * COMMON_DANGEROUS_CHARS.size
+    assert_equal "<the-name #{escaped_dangerous_chars}=\"the value\" />",
+                 tag("the-name", COMMON_DANGEROUS_CHARS => "the value")
+
+    assert_equal "<the-name #{COMMON_DANGEROUS_CHARS}=\"the value\" />",
+                 tag("the-name", { COMMON_DANGEROUS_CHARS => "the value" }, false, false)
+  end
+
+  def test_content_tag_with_dangerous_names
+    escaped_dangerous_chars = "_" * COMMON_DANGEROUS_CHARS.size
+    assert_equal "<#{escaped_dangerous_chars} #{escaped_dangerous_chars}=\"the value\">xxx</#{escaped_dangerous_chars}>",
+                 content_tag(COMMON_DANGEROUS_CHARS, 'xxx', COMMON_DANGEROUS_CHARS => "the value")
   end
 
   def test_content_tag
