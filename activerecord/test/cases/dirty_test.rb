@@ -278,19 +278,19 @@ class DirtyTest < ActiveRecord::TestCase
 
   def test_save_should_store_serialized_attributes_even_with_partial_updates
     with_partial_updates(Topic) do
-      topic = Topic.create!(:content => {:a => "a"})
-      topic.content[:b] = "b"
+      topic = Topic.create!(:content => {"a" => "a"})
+      topic.content["b"] = "b"
       #assert topic.changed? # Known bug, will fail
       topic.save!
-      assert_equal "b", topic.content[:b]
+      assert_equal "b", topic.content["b"]
       topic.reload
-      assert_equal "b", topic.content[:b]
+      assert_equal "b", topic.content["b"]
     end
   end
 
   def test_save_should_not_save_serialized_attribute_with_partial_updates_if_not_present
     with_partial_updates(Topic) do
-      Topic.create!(:author_name => 'Bill', :content => {:a => "a"})
+      Topic.create!(:author_name => 'Bill', :content => {"a" => "a"})
       topic = Topic.first(:select => 'id, author_name')
       topic.update_attribute :author_name, 'John'
       topic = Topic.first

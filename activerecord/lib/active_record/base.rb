@@ -524,6 +524,18 @@ module ActiveRecord #:nodoc:
     class_inheritable_accessor :default_scoping, :instance_writer => false
     self.default_scoping = []
 
+    ##
+    # :singleton-method:
+    # Application configurable boolean that instructs the YAML Coder to use
+    # an unsafe load if set to true.
+    cattr_accessor :use_yaml_unsafe_load, :instance_writer => false
+    @@use_yaml_unsafe_load = false
+
+    # Application configurable array that provides additional permitted classes
+    # to Psych safe_load in the YAML Coder
+    cattr_accessor :yaml_column_permitted_classes, :instance_writer => false
+    @@yaml_column_permitted_classes = [Symbol]
+
     class << self # Class methods
       # Find operates with four different retrieval approaches:
       #
@@ -3194,7 +3206,12 @@ module ActiveRecord #:nodoc:
 
       def object_from_yaml(string)
         return string unless string.is_a?(String) && string =~ /^---/
-        YAML::load(string) rescue string
+
+        if ActiveRecord::Base.use_yaml_unsafe_load
+          YAML.load(string) rescue string
+        else
+          YAML.safe_load(string, ActiveRecord::Base.yaml_column_permitted_classes, [], true)
+        end
       end
 
       def clone_attributes(reader_method = :read_attribute, attributes = {})

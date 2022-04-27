@@ -50,8 +50,8 @@ class AttributeMethodsTest < ActiveRecord::TestCase
   end
 
   def test_should_unserialize_attributes_for_frozen_records
-    myobj = {:value1 => :value2}
-    topic = Topic.create("content" => myobj)
+    myobj = { "value1" => "value2" }
+    topic = Topic.create(content: myobj)
     topic.freeze
     assert_equal myobj, topic.content
   end

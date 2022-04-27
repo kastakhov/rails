@@ -1498,59 +1498,6 @@ class BasicsTest < ActiveRecord::TestCase
     assert_equal 0, replies.size
   end
 
-  MyObject = Struct.new :attribute1, :attribute2
-
-  def test_serialized_attribute
-    myobj = MyObject.new('value1', 'value2')
-    topic = Topic.create("content" => myobj)
-    Topic.serialize("content", MyObject)
-    assert_equal(myobj, topic.content)
-  end
-
-  def test_serialized_time_attribute
-    myobj = Time.local(2008,1,1,1,0)
-    topic = Topic.create("content" => myobj).reload
-    assert_equal(myobj, topic.content)
-  end
-
-  def test_serialized_string_attribute
-    myobj = "Yes"
-    topic = Topic.create("content" => myobj).reload
-    assert_equal(myobj, topic.content)
-  end
-
-  def test_nil_serialized_attribute_with_class_constraint
-    myobj = MyObject.new('value1', 'value2')
-    topic = Topic.new
-    assert_nil topic.content
-  end
-
-  def test_should_raise_exception_on_assigning_already_serialized_content
-    topic = Topic.new
-    serialized_content = %w[foo bar].to_yaml
-    assert_raise(ActiveRecord::ActiveRecordError) { topic.content = serialized_content }
-  end
-
-  def test_should_raise_exception_on_serialized_attribute_with_type_mismatch
-    myobj = MyObject.new('value1', 'value2')
-    topic = Topic.new(:content => myobj)
-    assert topic.save
-    Topic.serialize(:content, Hash)
-    assert_raise(ActiveRecord::SerializationTypeMismatch) { Topic.find(topic.id).content }
-  ensure
-    Topic.serialize(:content)
-  end
-
-  def test_serialized_attribute_with_class_constraint
-    settings = { "color" => "blue" }
-    Topic.serialize(:content, Hash)
-    topic = Topic.new(:content => settings)
-    assert topic.save
-    assert_equal(settings, Topic.find(topic.id).content)
-  ensure
-    Topic.serialize(:content)
-  end
-
   def test_quote
     author_name = "\\ \001 ' \n \\n \""
     topic = Topic.create('author_name' => author_name)
