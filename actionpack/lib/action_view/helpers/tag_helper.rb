@@ -40,6 +40,8 @@ module ActionView
       #   # => <img src="open &amp; shut.png" />
       def tag(name, options = nil, open = false, escape = true)
         if escape
+          # Applying XML name escaping because it is less restrictive than the
+          # HTML spec (but still prevents XSS)
           name = ERB::Util.xml_name_escape(name)
         end
         "<#{name}#{tag_options(options, escape) if options}#{open ? ">" : " />"}".html_safe
@@ -130,6 +132,8 @@ module ActionView
         def content_tag_string(name, content, options, escape = true)
           tag_options = tag_options(options, escape) if options
           if escape
+            # Applying XML name escaping because it is less restrictive than the
+            # HTML spec (but still prevents XSS)
             name = ERB::Util.xml_name_escape(name)
           end
           "<#{name}#{tag_options}>#{content}</#{name}>".html_safe
@@ -143,7 +147,10 @@ module ActionView
                 if BOOLEAN_ATTRIBUTES.include?(key)
                   attrs << %(#{key}="#{key}") if value
                 else
-                  attrs << %(#{ERB::Util.xml_name_escape(key)}="#{escape_once(value)}") if !value.nil?
+                  # Applying the HTML spec because it is less restrictive on
+                  # attribute names than the XML spec (but still prevents XSS)
+                  escaped_key = ERB::Util.html_attribute_name_escape(key)
+                  attrs << %(#{escaped_key}="#{escape_once(value)}") if !value.nil?
                 end
               end
             else

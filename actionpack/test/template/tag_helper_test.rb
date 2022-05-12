@@ -43,8 +43,7 @@ class TagHelperTest < ActionView::TestCase
   end
 
   def test_tag_with_dangerous_unknown_attribute_name
-    escaped_dangerous_chars = "_" * COMMON_DANGEROUS_CHARS.size
-    assert_equal "<the-name #{escaped_dangerous_chars}=\"the value\" />",
+    assert_equal "<the-name &<----%*+,-;-^|=\"the value\" />",
                  tag("the-name", COMMON_DANGEROUS_CHARS => "the value")
 
     assert_equal "<the-name #{COMMON_DANGEROUS_CHARS}=\"the value\" />",
@@ -52,9 +51,12 @@ class TagHelperTest < ActionView::TestCase
   end
 
   def test_content_tag_with_dangerous_names
-    escaped_dangerous_chars = "_" * COMMON_DANGEROUS_CHARS.size
-    assert_equal "<#{escaped_dangerous_chars} #{escaped_dangerous_chars}=\"the value\">xxx</#{escaped_dangerous_chars}>",
+    escaped_tag_name = "_" * COMMON_DANGEROUS_CHARS.size
+    assert_equal "<#{escaped_tag_name} &<----%*+,-;-^|=\"the value\">xxx</#{escaped_tag_name}>",
                  content_tag(COMMON_DANGEROUS_CHARS, 'xxx', COMMON_DANGEROUS_CHARS => "the value")
+
+    assert_equal "<#{COMMON_DANGEROUS_CHARS} #{COMMON_DANGEROUS_CHARS}=\"the value\">xxx</#{COMMON_DANGEROUS_CHARS}>",
+                 content_tag(COMMON_DANGEROUS_CHARS, 'xxx', { COMMON_DANGEROUS_CHARS => "the value"}, false)
   end
 
   def test_content_tag

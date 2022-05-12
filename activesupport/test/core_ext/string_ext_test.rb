@@ -458,4 +458,11 @@ class OutputSafetyTest < ActiveSupport::TestCase
                    ERB::Util.xml_name_escape(common_dangerous_chars)
     end
   end
+
+  test "ERB::Util.html_attribute_name_escape should escape unsafe characters for HTML attribute names" do
+    assert_equal '', ERB::Util.html_attribute_name_escape(nil)
+    assert_equal '-<script-alert(-boom-)<-script', ERB::Util.html_attribute_name_escape('><script>alert("boom")</script')
+    assert_equal 'this-and-that', ERB::Util.html_attribute_name_escape('this and=that')
+    assert_equal 'control-char', ERB::Util.html_attribute_name_escape("control\000char")
+  end
 end

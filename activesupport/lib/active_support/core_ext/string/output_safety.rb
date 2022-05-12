@@ -19,11 +19,21 @@ class ERB
                                   "\u{FDF0}-\u{FFFD}\u{10000}-\u{EFFFF}"
       TAG_NAME_START_REGEXP = /[^#{TAG_NAME_START_REGEXP_SET}]/u
       TAG_NAME_FOLLOWING_REGEXP = /[^#{TAG_NAME_START_REGEXP_SET}\-.0-9\u{B7}\u{0300}-\u{036F}\u{203F}-\u{2040}]/u
+
+      # https://infra.spec.whatwg.org/#noncharacter
+      NONCHARACTER_REGEXP_SET = "\u{FDD0}-\u{FDEF}\u{FFFE FFFF 1FFFE 1FFFF 2FFFE 2FFFF 3FFFE 3FFFF 4FFFE 4FFFF 5FFFE 5FFFF 6FFFE 6FFFF 7FFFE 7FFFF 8FFFE 8FFFF 9FFFE 9FFFF AFFFE AFFFF BFFFE BFFFF CFFFE CFFFF DFFFE DFFFF EFFFE EFFFF FFFFE FFFFF 10FFFE 10FFFF}"
+      # https://html.spec.whatwg.org/#syntax-attribute-name
+      ATTRIBUTE_NAME_INVALID_CHARS = /[ "'>\/=\p{Control}#{NONCHARACTER_REGEXP_SET}]/u
     else
       # On ruby 1.8.7 we cannot handle unicode chars, so will have to resort to only allowing 7bit ascii
       TAG_NAME_START_REGEXP_SET = ":A-Z_a-z"
       TAG_NAME_START_REGEXP = /[^#{TAG_NAME_START_REGEXP_SET}]/
       TAG_NAME_FOLLOWING_REGEXP = /[^#{TAG_NAME_START_REGEXP_SET}\-.0-9]/
+
+      # https://infra.spec.whatwg.org/#control
+      ASCII_CONTROL_CHAR_REGEXP_SET = "\000-\037\177" # Octal
+      NON_ASCII_REGEXP_SET = "\200-\377" # Octal
+      ATTRIBUTE_NAME_INVALID_CHARS = /[ "'>\/=#{ASCII_CONTROL_CHAR_REGEXP_SET}#{NON_ASCII_REGEXP_SET}]/
     end
 
     # A utility method for escaping HTML tag characters.
@@ -86,6 +96,15 @@ class ERB
       starting_char + following_chars
     end
     module_function :xml_name_escape
+
+    # A utility method for escaping HTML attribute names.
+    #
+    #   html_attribute_name_escape('><script>alert("boom")</script')
+    #   # => "-<script-alert(-boom-)<-script"
+    def html_attribute_name_escape(name)
+      name.to_s.gsub(ATTRIBUTE_NAME_INVALID_CHARS, '-')
+    end
+    module_function :html_attribute_name_escape
   end
 end
 
