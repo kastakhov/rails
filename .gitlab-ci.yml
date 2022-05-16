@@ -1,6 +1,7 @@
 .rascal:
   variables:
     BUNDLE_PATH: /cache/bundle
+    BUNDLE_SILENCE_ROOT_WARNING: true
     CI: true
   volumes:
     cache: /cache
