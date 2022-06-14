@@ -31,7 +31,7 @@ module ActiveSupport #:nodoc:
           def encode_with(coder)
             string = to_s
             coder.tag = nil
-            coder.style = :plain
+            coder.style = Psych::Nodes::Scalar::PLAIN
             coder.scalar = YAML_MAPPING[string] || string
           end
         else
