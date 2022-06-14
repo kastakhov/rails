@@ -20,13 +20,16 @@
     ruby-2.7:
       variables:
         BUNDLE_GEMFILE: /repo/Gemfile.2.7
+    ruby-3.1:
+      variables:
+        BUNDLE_GEMFILE: /repo/Gemfile.3.1
     postgresql-14:
       variables:
         BUNDLE_GEMFILE: /repo/Gemfile.2.5
 
 
 .lts_job: &lts_job
-  image: registry.makandra.de/rails-lts/rails-lts-docker/test-env:3.2
+  image: registry.makandra.de/rails-lts/rails-lts-docker/test-env:4
   services:
     - name: registry.makandra.de/rails-lts/rails-lts-docker/pg:9.1
       alias: pg-db
@@ -68,6 +71,10 @@
   BUNDLE_GEMFILE: Gemfile.2.7
   RBENV_VERSION: "2.7"
 
+.ruby-3.1: &ruby_3_1
+  BUNDLE_GEMFILE: Gemfile.3.1.
+  RBENV_VERSION: "3.1"
+
 
 # ============= Actual jobs ================
 
@@ -98,6 +105,13 @@ ruby-2.7:
     <<: *lts_job_variables
     <<: *ruby_2_7
     PROMPT: 'rails 2.3 : ruby 2.7'
+
+ruby-3.1:
+  <<: *lts_job
+  variables:
+    <<: *lts_job_variables
+    <<: *ruby_3_1
+    PROMPT: 'rails 2.3 : ruby 3.1'
 
 postgresql-14:
   <<: *lts_job
