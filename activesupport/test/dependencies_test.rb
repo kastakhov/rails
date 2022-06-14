@@ -224,13 +224,13 @@ class DependenciesTest < ActiveSupport::TestCase
         A::DoesNotExist.nil?
         flunk "No raise!!"
       rescue NameError => e
-        assert_equal "uninitialized constant A::DoesNotExist", e.message
+        assert_match "uninitialized constant A::DoesNotExist", e.message
       end
       begin
         A::B::DoesNotExist.nil?
         flunk "No raise!!"
       rescue NameError => e
-        assert_equal "uninitialized constant A::B::DoesNotExist", e.message
+        assert_match "uninitialized constant A::B::DoesNotExist", e.message
       end
     end
   end
@@ -713,7 +713,7 @@ class DependenciesTest < ActiveSupport::TestCase
           ::RaisesNameError::FooBarBaz.object_id
           flunk 'should have raised NameError when autoloaded file referenced FooBarBaz'
         rescue NameError => e
-          assert_equal 'uninitialized constant RaisesNameError::FooBarBaz', e.message
+          assert_match 'uninitialized constant RaisesNameError::FooBarBaz', e.message
         end
         assert !defined?(::RaisesNameError), "::RaisesNameError is defined but it should have failed!"
       end
