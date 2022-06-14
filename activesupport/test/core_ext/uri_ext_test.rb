@@ -11,10 +11,12 @@ class URIExtTest < Test::Unit::TestCase
       assert_equal str, URI.decode(URI.escape(str))
     else
       Kernel.silence_warnings do # Avoid URI deprecation warnings
-        escaped_str = URI.escape(str).freeze
+        escaped_str = CGI.escape(str).freeze
 
-        assert_equal str, URI.unescape(escaped_str)
-        assert_equal str, URI.decode(escaped_str)
+        if RUBY_VERSION < '3.0'
+          assert_equal str, URI.unescape(escaped_str)
+          assert_equal str, URI.decode(escaped_str)
+        end
         assert_equal str, RailsLts::Support::URI.unescape_uri(escaped_str)
       end
     end
