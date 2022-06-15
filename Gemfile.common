@@ -9,6 +9,7 @@ gem 'fcgi'
 
 if RUBY_VERSION >= '3'
   gem 'rexml'
+  gem 'net-smtp'
 end
 
 if RUBY_VERSION >= '2.6'
