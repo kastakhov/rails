@@ -18,7 +18,11 @@ module ActionView
           erb.force_encoding(template.source.encoding)
         end
 
-        ::ERB.new(erb, nil, erb_trim_mode, '@output_buffer').src
+        if RUBY_VERSION < '3'
+          ::ERB.new(erb, nil, erb_trim_mode, '@output_buffer').src
+        else
+          ActiveSupport.call_with_keywords(::ERB, :new, [erb], :trim_mode => erb_trim_mode, :eoutvar => '@output_buffer').src
+        end
       end
     end
   end
