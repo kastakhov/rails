@@ -107,7 +107,10 @@ module TZInfo
         identifier = identifier.gsub(/-/, '__m__').gsub(/\+/, '__p__')
         begin
           # Use a temporary variable to avoid an rdoc warning
-          file = "tzinfo/definitions/#{identifier}".untaint
+          file = "tzinfo/definitions/#{identifier}"
+          if RUBY_VERSION < '2.7'
+            file = file.untaint
+          end
           require file
           
           m = Definitions
