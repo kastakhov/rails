@@ -51,14 +51,10 @@ else
     ] unless defined?(REGEXPS)
 
     def is_missing?(path)
-      path.gsub(/\.rb$/, '') == self.path.gsub(/\.rb$/, '')
+      path.gsub(/\.rb$/, '') == (self.path || path_from_message).gsub(/\.rb$/, '')
     end
 
     module PathFromMessage
-      def path
-        super || path_from_message
-      end
-
       private
 
       def path_from_message
