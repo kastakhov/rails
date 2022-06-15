@@ -32,4 +32,13 @@ module ActiveSupport
       false
     end
   end
+
+  def self.call_with_keywords(object, method, args, keyword_args)
+    # is overwritten for Rails 3+
+    object.public_send(method, *(args + [keyword_args]))
+  end
+end
+
+if RUBY_VERSION >= '3'
+  require_relative './version_switches/ruby_3'
 end
