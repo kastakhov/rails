@@ -590,7 +590,7 @@ module ActionMailer #:nodoc:
 
       def render(opts)
         body = opts.delete(:body)
-        if opts[:file] && (opts[:file] !~ /\// && !opts[:file].respond_to?(:render))
+        if opts[:file] && ((!opts[:file].is_a?(String) || opts[:file] !~ /\//) && !opts[:file].respond_to?(:render))
           opts[:file] = "#{mailer_name}/#{opts[:file]}"
         end
 
