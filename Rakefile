@@ -81,6 +81,8 @@ namespace :railslts do
 
       runner.run('activeresource', 'cd activeresource && rake test')
 
+      runner.run('rack', 'cd rack && rake test')
+
       runner.run('railties', 'cd railties && rake test')
 
       runner.run('railslts-version', 'cd railslts-version && rake test')
