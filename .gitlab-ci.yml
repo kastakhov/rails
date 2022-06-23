@@ -72,7 +72,7 @@
   RBENV_VERSION: "2.7"
 
 .ruby-3.1: &ruby_3_1
-  BUNDLE_GEMFILE: Gemfile.3.1.
+  BUNDLE_GEMFILE: Gemfile.3.1
   RBENV_VERSION: "3.1"
 
 
