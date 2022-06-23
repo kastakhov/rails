@@ -3,6 +3,7 @@ require 'date'
 require 'time'
 require 'uri'
 require 'benchmark'
+require 'active_support/core_ext/uri'
 
 module ActiveResource
   class ConnectionError < StandardError # :nodoc:
@@ -103,8 +104,8 @@ module ActiveResource
     # Set URI for remote service.
     def site=(site)
       @site = site.is_a?(URI) ? site : URI.parse(site)
-      @user = URI.decode(@site.user) if @site.user
-      @password = URI.decode(@site.password) if @site.password
+      @user = RailsLts::Support::URI.unescape_uri(@site.user) if @site.user
+      @password = RailsLts::Support::URI.unescape_uri(@site.password) if @site.password
     end
 
     # Set the proxy for remote service.

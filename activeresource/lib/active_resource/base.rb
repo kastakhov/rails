@@ -1,4 +1,5 @@
 require 'active_resource/connection'
+require 'active_support/core_ext/uri'
 require 'cgi'
 require 'set'
 
@@ -264,8 +265,8 @@ module ActiveResource
           @site = nil
         else
           @site = create_site_uri_from(site)
-          @user = URI.decode(@site.user) if @site.user
-          @password = URI.decode(@site.password) if @site.password
+          @user = RailsLts::Support::URI.unescape_uri(@site.user) if @site.user
+          @password = RailsLts::Support::URI.unescape_uri(@site.password) if @site.password
         end
       end
 
