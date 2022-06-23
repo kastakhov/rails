@@ -33,7 +33,11 @@ module ActionController
             body = request.raw_post
             body.blank? ? {} : Hash.from_xml(body).with_indifferent_access
           when :yaml
-            YAML.load(request.raw_post)
+            if YAML.respond_to?(:unsafe_load)
+              YAML.unsafe_load(request.raw_post)
+            else
+              YAML.load(request.raw_post)
+            end
           when :json
             body = request.raw_post
             if body.blank?
