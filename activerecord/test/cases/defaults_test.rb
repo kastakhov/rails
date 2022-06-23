@@ -3,6 +3,7 @@ require 'models/default'
 require 'models/entrant'
 
 class DefaultTest < ActiveRecord::TestCase
+
   def test_nil_defaults_for_not_null_columns
     column_defaults =
       if current_adapter?(:MysqlAdapter) && (Mysql.client_version < 50051 || (50100..50122).include?(Mysql.client_version))
@@ -21,9 +22,9 @@ class DefaultTest < ActiveRecord::TestCase
   if current_adapter?(:PostgreSQLAdapter, :FirebirdAdapter, :OpenBaseAdapter, :OracleAdapter)
     def test_default_integers
       default = Default.new
-      assert_instance_of Fixnum, default.positive_integer
+      assert_instance_of ActiveSupport::IntegerClass, default.positive_integer
       assert_equal 1, default.positive_integer
-      assert_instance_of Fixnum, default.negative_integer
+      assert_instance_of ActiveSupport::IntegerClass, default.negative_integer
       assert_equal -1, default.negative_integer
       assert_instance_of BigDecimal, default.decimal_number
       assert_equal BigDecimal.new("2.78"), default.decimal_number
