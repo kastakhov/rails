@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+gem 'rack', :path => 'rack'
+
 gem 'rdoc', '=2.5.11'
 gem 'mocha', '=0.9.7'
 gem 'RedCloth'
@@ -9,10 +11,12 @@ gem 'fcgi'
 # Rack
 gem 'bacon'
 gem 'thin'
-gem 'webrick'
 
-if false
-  # TODO: possibly test this for older ruby versions
+if RUBY_VERSION >= '2'
+  gem 'webrick'
+end
+
+if RUBY_VERSION < '2'
   gem 'mongrel'
 end
 
@@ -30,7 +34,7 @@ end
 if RUBY_VERSION >= '2.4'
   # "mysql" will not compile any more
   # "mysql2" 0.3+ does not support Rails 2.3 (missing activerecord-mysql2-adapter)
-  gem 'mysql2', :git => 'https://github.com/makandra/mysql2', branch: '0.2.x-lts'
+  gem 'mysql2', :git => 'https://github.com/makandra/mysql2', :branch => '0.2.x-lts'
 else
   gem 'mysql'
 end
