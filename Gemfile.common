@@ -29,7 +29,7 @@ end
 if RUBY_VERSION >= '2.4'
   # "mysql" will not compile any more
   # "mysql2" 0.3+ does not support Rails 2.3 (missing activerecord-mysql2-adapter)
-  gem 'mysql2', '<0.3'
+  gem 'mysql2', :git => 'https://github.com/makandra/mysql2', branch: '0.2.x-lts'
 else
   gem 'mysql'
 end
