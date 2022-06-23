@@ -245,6 +245,18 @@ end
 
 
 class FinderTest < ActiveRecord::TestCase
+  class EnumerableLike
+    include Enumerable
+
+    def initialize(array)
+      @array = array
+    end
+
+    def each(&block)
+      @array.each(&block)
+    end
+  end
+
   fixtures :companies, :topics, :entrants, :developers, :developers_projects, :posts, :comments, :accounts, :authors, :customers, :credentials, :credential_usages
 
   def test_find_by_id_with_hash
@@ -548,12 +560,11 @@ class FinderTest < ActiveRecord::TestCase
     assert_equal '1,2,3', bind(':a', :a => [1, 2, 3])
     assert_equal quoted_abc, bind(':a', :a => %w(a b c)) # '
 
-    require 'set'
-    assert_equal '1,2,3', bind('?', SortedSet.new([1, 2, 3]))
-    assert_equal quoted_abc, bind('?', SortedSet.new(%w(a b c)))
+    assert_equal '1,2,3', bind('?', EnumerableLike.new([1, 2, 3]))
+    assert_equal quoted_abc, bind('?', EnumerableLike.new(%w(a b c)))
 
-    assert_equal '1,2,3', bind(':a', :a => SortedSet.new([1, 2, 3]))
-    assert_equal quoted_abc, bind(':a', :a => SortedSet.new(%w(a b c))) # '
+    assert_equal '1,2,3', bind(':a', :a => EnumerableLike.new([1, 2, 3]))
+    assert_equal quoted_abc, bind(':a', :a => EnumerableLike.new(%w(a b c))) # '
   end
 
   def test_bind_empty_enumerable
