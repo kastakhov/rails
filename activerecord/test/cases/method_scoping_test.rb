@@ -231,7 +231,7 @@ class MethodScopingTest < ActiveRecord::TestCase
   end
 
   def test_scoped_with_duck_typing
-    scoping = Struct.new(:method_scoping).new(:find => { :conditions => ["name = ?", 'David'] })
+    scoping = Struct.new(:method_scoping).new({ :find => { :conditions => ["name = ?", 'David'] } })
     Developer.with_scope(scoping) do
        assert_equal %w(David), Developer.find(:all).map { |d| d.name }
     end
