@@ -1,0 +1,9 @@
+RDOX
+ChangeLog
+*.gem
+lighttpd.errors
+*.rbc
+stage
+*.tar.gz
+.rbx
+doc
