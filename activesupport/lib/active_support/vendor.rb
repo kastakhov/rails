@@ -1,5 +1,6 @@
 # Prefer gems to the bundled libs.
 require 'rubygems'
+require 'active_support/version_switches'
 
 begin
   gem 'builder', '~> 2.1.2'

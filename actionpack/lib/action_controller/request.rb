@@ -3,6 +3,7 @@ require 'stringio'
 require 'strscan'
 
 require 'active_support/memoizable'
+require 'active_support/version_switches'
 require 'action_controller/cgi_ext'
 
 module ActionController

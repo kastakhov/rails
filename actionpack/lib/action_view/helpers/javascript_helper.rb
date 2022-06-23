@@ -1,3 +1,4 @@
+require 'active_support/version_switches'
 require 'action_view/helpers/tag_helper'
 require 'action_view/helpers/prototype_helper'
 

@@ -1,5 +1,6 @@
 # Prefer gems to the bundled libs.
 require 'rubygems'
+require 'active_support/version_switches'
 
 begin
   gem 'tmail', '~> 1.2.7'

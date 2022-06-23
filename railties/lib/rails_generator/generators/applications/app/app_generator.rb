@@ -3,6 +3,7 @@ require File.dirname(__FILE__) + '/template_runner'
 require 'digest/md5' 
 require 'active_support'
 require 'active_support/secure_random'
+require 'active_support/version_switches'
 
 class AppGenerator < Rails::Generator::Base
   if ActiveSupport.modern_ruby?
