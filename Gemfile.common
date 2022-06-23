@@ -9,6 +9,7 @@ gem 'fcgi'
 # Rack
 gem 'bacon'
 gem 'thin'
+gem 'webrick'
 
 if false
   # TODO: possibly test this for older ruby versions
