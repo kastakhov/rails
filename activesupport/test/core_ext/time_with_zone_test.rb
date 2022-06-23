@@ -97,7 +97,7 @@ class TimeWithZoneTest < Test::Unit::TestCase
   end
 
   def test_yaml_dump_and_parse
-    assert_equal @twz, YAML.unsafe_load(@twz.to_yaml)
+    assert_equal @twz, RailsLts::Support::YAML.legacy_load(@twz.to_yaml)
   end
 
   def test_to_yaml

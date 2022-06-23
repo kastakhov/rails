@@ -1,3 +1,5 @@
+require 'active_support/version_switches'
+
 module ActionController
   class ParamsParser
     ActionController::Base.param_parsers[Mime::XML] = :xml_simple
@@ -33,11 +35,7 @@ module ActionController
             body = request.raw_post
             body.blank? ? {} : Hash.from_xml(body).with_indifferent_access
           when :yaml
-            if YAML.respond_to?(:unsafe_load)
-              YAML.unsafe_load(request.raw_post)
-            else
-              YAML.load(request.raw_post)
-            end
+            RailsLts::Support::YAML.legacy_load(request.raw_post)
           when :json
             body = request.raw_post
             if body.blank?

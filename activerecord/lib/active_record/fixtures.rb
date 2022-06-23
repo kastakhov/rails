@@ -4,6 +4,7 @@ require 'csv'
 require 'zlib'
 require 'active_support/dependencies'
 require 'active_support/test_case'
+require 'active_support/version_switches'
 
 if RUBY_VERSION < '1.9'
   module YAML #:nodoc:
@@ -742,11 +743,7 @@ class Fixtures < (RUBY_VERSION < '1.9' ? YAML::Omap : Hash)
 
     def parse_yaml_string(fixture_content)
       yaml = erb_render(fixture_content)
-      if YAML.respond_to?(:unsafe_load)
-        YAML.unsafe_load(yaml)
-      else
-        YAML.load(yaml)
-      end
+      RailsLts::Support::YAML.legacy_load(yaml)
     rescue => error
       raise Fixture::FormatError, "a YAML error occurred parsing #{yaml_file_path}. Please note that YAML must be consistently indented using spaces. Tabs are not allowed. Please have a look at http://www.yaml.org/faq.html\nThe exact error was:\n  #{error.class}: #{error}"
     end
