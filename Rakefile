@@ -3,7 +3,7 @@ require 'rubygems/package_task'
 require File.expand_path('../railslts-version/lib/railslts-version', __FILE__)
 
 BRANCH = '2-3-lts'
-SUB_PROJECT_PATHS = %w(activesupport railties actionpack actionmailer activeresource activerecord railslts-version)
+SUB_PROJECT_PATHS = %w(activesupport railties actionpack actionmailer activeresource activerecord railslts-version rack)
 ALL_PROJECT_PATHS = ['.', *SUB_PROJECT_PATHS]
 
 fail = lambda { |message|
