@@ -487,7 +487,7 @@ class ActiveRecordYamlSettingsTest < Test::Unit::TestCase
       Date,
       Time,
       DateTime,
-      ActiveSupport::HashWithIndifferentAccess,
+      'ActiveSupport::HashWithIndifferentAccess',
       'ActionDispatch::Http::ParamsHashWithIndifferentAccess',
       'ActionController::Parameters',
     ].map(&:to_s), ActiveRecord::Base.yaml_column_permitted_classes)
@@ -501,7 +501,7 @@ class ActiveRecordYamlSettingsTest < Test::Unit::TestCase
       Date,
       Time,
       DateTime,
-      ActiveSupport::HashWithIndifferentAccess,
+      'ActiveSupport::HashWithIndifferentAccess',
       'ActionDispatch::Http::ParamsHashWithIndifferentAccess',
       'ActionController::Parameters',
       'MyClass',
