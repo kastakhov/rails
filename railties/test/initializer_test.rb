@@ -487,10 +487,10 @@ class ActiveRecordYamlSettingsTest < Test::Unit::TestCase
       Date,
       Time,
       DateTime,
-      'ActiveSupport::HashWithIndifferentAccess',
+      ActiveSupport::HashWithIndifferentAccess,
       'ActionDispatch::Http::ParamsHashWithIndifferentAccess',
       'ActionController::Parameters',
-    ], ActiveRecord::Base.yaml_column_permitted_classes)
+    ].map(&:to_s), ActiveRecord::Base.yaml_column_permitted_classes)
   end
 
   def test_permitted_classes_can_be_changed
@@ -501,10 +501,10 @@ class ActiveRecordYamlSettingsTest < Test::Unit::TestCase
       Date,
       Time,
       DateTime,
-      'ActiveSupport::HashWithIndifferentAccess',
+      ActiveSupport::HashWithIndifferentAccess,
       'ActionDispatch::Http::ParamsHashWithIndifferentAccess',
       'ActionController::Parameters',
       'MyClass',
-    ], ActiveRecord::Base.yaml_column_permitted_classes)
+    ].map(&:to_s), ActiveRecord::Base.yaml_column_permitted_classes)
   end
 end

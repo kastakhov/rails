@@ -923,14 +923,14 @@ Run `rake gems:install` to install the missing gems.
       end
       self.active_support = Rails::OrderedOptions.new
 
-      self.active_record.yaml_column_permitted_classes = [
-        Symbol,
-        Date,
-        Time,
-        DateTime,
-        'ActiveSupport::HashWithIndifferentAccess',
-        'ActionDispatch::Http::ParamsHashWithIndifferentAccess',
-        'ActionController::Parameters',
+      self.active_record.yaml_column_permitted_classes = %w[
+        Symbol
+        Date
+        Time
+        DateTime
+        ActiveSupport::HashWithIndifferentAccess
+        ActionDispatch::Http::ParamsHashWithIndifferentAccess
+        ActionController::Parameters
       ]
     end
 
