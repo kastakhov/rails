@@ -74,78 +74,79 @@ class SerializedAttributeTest < ActiveRecord::TestCase
   include SharedSerializedAttributeTests
 end
 
-class SerializedAttributeTestWithYAMLSafeLoad < ActiveRecord::TestCase
-  def setup
-    ActiveRecord::Base.use_yaml_unsafe_load = false
-  end
+if YAML::VERSION >= '2'
+  class SerializedAttributeTestWithYAMLSafeLoad < ActiveRecord::TestCase
+    def setup
+      ActiveRecord::Base.use_yaml_unsafe_load = false
+    end
 
-  include SharedSerializedAttributeTests
+    include SharedSerializedAttributeTests
 
-  def test_should_raise_exception_on_serialized_attribute_with_type_mismatch
-    myobj = String.new("value1")
-    topic = Topic.new(content: myobj)
-    assert topic.save
-    Topic.serialize(:content, Hash)
-    assert_raise(ActiveRecord::SerializationTypeMismatch) { Topic.find(topic.id).content }
-  end
+    def test_should_raise_exception_on_serialized_attribute_with_type_mismatch
+      myobj = String.new("value1")
+      topic = Topic.new(:content => myobj)
+      assert topic.save
+      Topic.serialize(:content, Hash)
+      assert_raise(ActiveRecord::SerializationTypeMismatch) { Topic.find(topic.id).content }
+    end
 
-  def test_serialized_attribute
-    Topic.serialize("content", String)
+    def test_serialized_attribute
+      Topic.serialize("content", String)
 
-    myobj = String.new("value1")
-    topic = Topic.create("content" => myobj)
-    assert_equal(myobj, topic.content)
+      myobj = String.new("value1")
+      topic = Topic.create("content" => myobj)
+      assert_equal(myobj, topic.content)
 
-    topic.reload
-    assert_equal(myobj, topic.content)
-  end
+      topic.reload
+      assert_equal(myobj, topic.content)
+    end
 
-  def test_unpermitted_classes_are_not_deserialized
-    Topic.serialize("content")
+    def test_unpermitted_classes_are_not_deserialized
+      Topic.serialize("content")
 
-    topic = Topic.create("content" => { "foo" => Time.now })
+      topic = Topic.create("content" => { "foo" => Time.now })
 
-    assert_raise(Psych::DisallowedClass) do
-      begin
-        topic.reload.content
-      rescue Exception => e
-        assert_equal 'Tried to load unspecified class: Time', e.message
-        raise
+      assert_raise(Psych::DisallowedClass) do
+        begin
+          topic.reload.content
+        rescue Exception => e
+          assert_equal 'Tried to load unspecified class: Time', e.message
+          raise
+        end
       end
     end
-  end
 
-  def test_unknown_classes_are_not_deserialized
-    Topic.serialize("content")
+    def test_unknown_classes_are_not_deserialized
+      Topic.serialize("content")
 
-    topic = Topic.create
-    Topic.update_all("content" => "--- !ruby/object:DoesNotExist {}\n")
+      topic = Topic.create
+      Topic.update_all("content" => "--- !ruby/object:DoesNotExist {}\n")
 
-    assert_raise(Psych::DisallowedClass) do
-      begin
-        topic.reload.content
-      rescue Exception => e
-        assert_equal 'Tried to load unspecified class: DoesNotExist', e.message
-        raise
+      assert_raise(Psych::DisallowedClass) do
+        begin
+          topic.reload.content
+        rescue Exception => e
+          assert_equal 'Tried to load unspecified class: DoesNotExist', e.message
+          raise
+        end
       end
     end
-  end
 
-  def test_permitted_classes_are_serialized
-    yaml_column_permitted_classes_default = ActiveRecord::Base.yaml_column_permitted_classes
-    ActiveRecord::Base.yaml_column_permitted_classes = [Time]
+    def test_permitted_classes_are_serialized
+      yaml_column_permitted_classes_default = ActiveRecord::Base.yaml_column_permitted_classes
+      ActiveRecord::Base.yaml_column_permitted_classes = [Time]
 
-    Topic.serialize("content")
+      Topic.serialize("content")
 
-    t = Time.now
-    topic = Topic.create("content" => { "foo" => t })
-    assert_equal t, topic.reload.content['foo']
-  ensure
-    ActiveRecord::Base.yaml_column_permitted_classes = yaml_column_permitted_classes_default
-  end
+      t = Time.now
+      topic = Topic.create("content" => { "foo" => t })
+      assert_equal t, topic.reload.content['foo']
+    ensure
+      ActiveRecord::Base.yaml_column_permitted_classes = yaml_column_permitted_classes_default
+    end
 
-  def test_serialized_time_attribute
-    skip "Time is not a supported class in Psych::safe_load."
-    # skip; Time is not a supported class in Psych::safe_load.
+    def test_serialized_time_attribute
+      # skip; Time is not a supported class in Psych::safe_load.
+    end
   end
 end

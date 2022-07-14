@@ -528,8 +528,21 @@ module ActiveRecord #:nodoc:
     # :singleton-method:
     # Application configurable boolean that instructs the YAML Coder to use
     # an unsafe load if set to true.
-    cattr_accessor :use_yaml_unsafe_load, :instance_writer => false
-    @@use_yaml_unsafe_load = false
+    if defined?(Psych) && Psych::VERSION >= '2'
+      # YAML.safe_load is available
+      cattr_accessor :use_yaml_unsafe_load, :instance_writer => false
+      @@use_yaml_unsafe_load = false
+    else
+      def self.use_yaml_unsafe_load
+        true
+      end
+
+      def self.use_yaml_unsafe_load=(value)
+        unless value
+          raise "you need Psych version >= 2 (and Ruby >= 1.9) to protect against unsafe load"
+        end
+      end
+    end
 
     # Application configurable array that provides additional permitted classes
     # to Psych safe_load in the YAML Coder

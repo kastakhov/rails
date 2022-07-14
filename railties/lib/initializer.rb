@@ -918,6 +918,11 @@ Run `rake gems:install` to install the missing gems.
       self.gems                         = default_gems
       self.i18n                         = default_i18n
 
+      for framework in default_frameworks
+        self.send("#{framework}=", Rails::OrderedOptions.new)
+      end
+      self.active_support = Rails::OrderedOptions.new
+
       self.active_record.yaml_column_permitted_classes = [
         Symbol,
         Date,
@@ -927,11 +932,6 @@ Run `rake gems:install` to install the missing gems.
         'ActionDispatch::Http::ParamsHashWithIndifferentAccess',
         'ActionController::Parameters',
       ]
-
-      for framework in default_frameworks
-        self.send("#{framework}=", Rails::OrderedOptions.new)
-      end
-      self.active_support = Rails::OrderedOptions.new
     end
 
     # Set the root_path to RAILS_ROOT and canonicalize it.

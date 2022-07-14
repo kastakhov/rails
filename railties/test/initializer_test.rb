@@ -1,5 +1,6 @@
 require 'abstract_unit'
 require 'initializer'
+require 'yaml'
 
 require 'action_view'
 require 'action_mailer'
@@ -439,10 +440,48 @@ end
 class ActiveRecordYamlSettingsTest < Test::Unit::TestCase
   def setup
     @config = Rails::Configuration.new
+    @config.frameworks = [:active_record]
+    @default_use_yaml_unsafe_load = ActiveRecord::Base.use_yaml_unsafe_load
+    @default_yaml_column_permitted_classes = ActiveRecord::Base.yaml_column_permitted_classes
+  end
+
+  def teardown
+    ActiveRecord::Base.use_yaml_unsafe_load = @default_use_yaml_unsafe_load
+    ActiveRecord::Base.yaml_column_permitted_classes = @default_yaml_column_permitted_classes
+  end
+
+  if YAML::VERSION >= '2'
+    def test_use_yaml_unsafe_load_defaults_to_false
+      Rails::Initializer.run(:initialize_framework_settings, @config)
+      assert !ActiveRecord::Base.use_yaml_unsafe_load
+    end
+
+    def test_use_yaml_unsafe_load_can_be_changed
+      @config.active_record.use_yaml_unsafe_load = true
+      Rails::Initializer.run(:initialize_framework_settings, @config)
+      assert ActiveRecord::Base.use_yaml_unsafe_load
+    end
+  else
+    def test_use_yaml_unsafe_load_defaults_to_true
+      Rails::Initializer.run(:initialize_framework_settings, @config)
+      assert ActiveRecord::Base.use_yaml_unsafe_load
+    end
+
+    def test_setting_yaml_unsafe_load_to_false_raises
+      @config.active_record.use_yaml_unsafe_load = false
+      assert_raise(RuntimeError) do
+        begin
+          Rails::Initializer.run(:initialize_framework_settings, @config)
+        rescue Exception => e
+          assert_equal 'you need Psych version >= 2 (and Ruby >= 1.9) to protect against unsafe load', e.message
+          raise
+        end
+      end
+    end
   end
 
   def test_permitted_classes_default_to_a_safe_list
-    Rails::Initializer.run(:initialize_framework_settings)
+    Rails::Initializer.run(:initialize_framework_settings, @config)
     assert_equal([
       Symbol,
       Date,
@@ -455,8 +494,8 @@ class ActiveRecordYamlSettingsTest < Test::Unit::TestCase
   end
 
   def test_permitted_classes_can_be_changed
-    @config.yaml_column_permitted_classes << 'MyClass'
-    Rails::Initializer.run(:initialize_framework_settings)
+    @config.active_record.yaml_column_permitted_classes << 'MyClass'
+    Rails::Initializer.run(:initialize_framework_settings, @config)
     assert_equal([
       Symbol,
       Date,
