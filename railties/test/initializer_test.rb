@@ -436,3 +436,36 @@ class RailsRootTest < Test::Unit::TestCase
   end
 end
 
+class ActiveRecordYamlSettingsTest < Test::Unit::TestCase
+  def setup
+    @config = Rails::Configuration.new
+  end
+
+  def test_permitted_classes_default_to_a_safe_list
+    Rails::Initializer.run(:initialize_framework_settings)
+    assert_equal([
+      Symbol,
+      Date,
+      Time,
+      DateTime,
+      'ActiveSupport::HashWithIndifferentAccess',
+      'ActionDispatch::Http::ParamsHashWithIndifferentAccess',
+      'ActionController::Parameters',
+    ], ActiveRecord::Base.yaml_column_permitted_classes)
+  end
+
+  def test_permitted_classes_can_be_changed
+    @config.yaml_column_permitted_classes << 'MyClass'
+    Rails::Initializer.run(:initialize_framework_settings)
+    assert_equal([
+      Symbol,
+      Date,
+      Time,
+      DateTime,
+      'ActiveSupport::HashWithIndifferentAccess',
+      'ActionDispatch::Http::ParamsHashWithIndifferentAccess',
+      'ActionController::Parameters',
+      'MyClass',
+    ], ActiveRecord::Base.yaml_column_permitted_classes)
+  end
+end

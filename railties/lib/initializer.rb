@@ -918,6 +918,16 @@ Run `rake gems:install` to install the missing gems.
       self.gems                         = default_gems
       self.i18n                         = default_i18n
 
+      self.active_record.yaml_column_permitted_classes = [
+        Symbol,
+        Date,
+        Time,
+        DateTime,
+        'ActiveSupport::HashWithIndifferentAccess',
+        'ActionDispatch::Http::ParamsHashWithIndifferentAccess',
+        'ActionController::Parameters',
+      ]
+
       for framework in default_frameworks
         self.send("#{framework}=", Rails::OrderedOptions.new)
       end
