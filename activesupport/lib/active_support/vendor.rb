@@ -15,9 +15,11 @@ rescue Gem::LoadError
 end
 
 tzinfo_version = ActiveSupport.modern_ruby? ? '0.3.53' : '0.3.12'
+secure_tzinfo_version = '0.3.61'
 begin
-  gem 'tzinfo', "~> #{tzinfo_version}"
+  gem 'tzinfo', "~> #{secure_tzinfo_version}"
 rescue Gem::LoadError
+  # our vendored versions are patched
   $:.unshift "#{File.dirname(__FILE__)}/vendor/tzinfo-#{tzinfo_version}"
 end
 
