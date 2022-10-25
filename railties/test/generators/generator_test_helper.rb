@@ -236,7 +236,7 @@ class GeneratorTestCase < Test::Unit::TestCase
   # The parsed YAML tree is passed to a block.
   def assert_generated_yaml(path)
     assert_generated_file("#{path}.yml") do |body|
-      yaml = RailsLts::Support::YAML.legacy_load(body)
+      yaml = YAML.load(body)
       assert yaml, 'YAML data missing'
       yield yaml if block_given?
     end

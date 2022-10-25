@@ -40,35 +40,6 @@ module RailsLts
       # is overwritten for Rails 3+
       object.public_send(method, *(args + [keyword_args]))
     end
-
-    module ERB
-      def self.legacy_new(str, safe_level = nil, trim_mode = nil, eoutvar='_erbout')
-        if RUBY_VERSION < '3'
-          ::ERB.new(str, safe_level, trim_mode, eoutvar)
-        else
-          raise ArgumentError, 'safe_level is not supported' unless safe_level.nil?
-          Support.call_with_keywords(::ERB, :new, [str], :trim_mode => trim_mode, :eoutvar => eoutvar)
-        end
-      end
-    end
-
-    module YAML
-      def self.legacy_load(yaml)
-        if ::YAML.respond_to?(:unsafe_load)
-          ::YAML.unsafe_load(yaml)
-        else
-          ::YAML.load(yaml)
-        end
-      end
-
-      def self.legacy_safe_load(yaml, permitted_classes = [], permitted_symbols = [], aliases = false)
-        if RUBY_VERSION < '3'
-          ::YAML.safe_load(yaml, permitted_classes, permitted_symbols, aliases)
-        else
-          Support.call_with_keywords(::YAML, :safe_load, [yaml], :permitted_classes => permitted_classes, :permitted_symbols => permitted_symbols, :aliases => aliases)
-        end
-      end
-    end
   end
 end
 

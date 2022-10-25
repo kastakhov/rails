@@ -3,7 +3,6 @@ require 'optparse'
 require 'fileutils'
 require 'tempfile'
 require 'erb'
-require 'active_support/version_switches'
 
 module Rails
   module Generator
@@ -143,7 +142,7 @@ HELP
             part_path = source_path(part_rel_path)
 
             # Render inner template within Sandbox binding
-            rendered_part = RailsLts::Support::ERB.legacy_new(File.readlines(part_path).join, nil, '-').result(part_binding)
+            rendered_part = ERB.new(File.readlines(part_path).join, nil, '-').result(part_binding)
             begin_mark = template_part_mark(template_options[:begin_mark], template_options[:mark_id])
             end_mark = template_part_mark(template_options[:end_mark], template_options[:mark_id])
             begin_mark + rendered_part + end_mark
@@ -309,7 +308,7 @@ HELP
             end
 
             # Render the source file with the temporary binding.
-            RailsLts::Support::ERB.legacy_new(file.read, nil, '-').result(b)
+            ERB.new(file.read, nil, '-').result(b)
           end
         end
 

@@ -1,6 +1,5 @@
 # Prefer gems to the bundled libs.
 require 'rubygems'
-require 'active_support/version_switches'
 
 begin
   gem 'builder', '~> 2.1.2'
@@ -30,3 +29,8 @@ rescue Gem::LoadError
   $:.unshift "#{File.dirname(__FILE__)}/vendor/i18n-0.4.1"
 end
 require 'i18n'
+
+if RUBY_VERSION >= '3'
+  require 'active_support/ruby/ruby_3_backward_compatibility'
+  require 'ruby3_backward_compatibility/compatibility/i18n'
+end

@@ -3221,9 +3221,9 @@ module ActiveRecord #:nodoc:
         return string unless string.is_a?(String) && string =~ /^---/
 
         if ActiveRecord::Base.use_yaml_unsafe_load
-          RailsLts::Support::YAML.legacy_load(string) rescue string
+          YAML.load(string) rescue string
         else
-          RailsLts::Support::YAML.legacy_safe_load(string, ActiveRecord::Base.yaml_column_permitted_classes, [], true)
+          YAML.safe_load(string, ActiveRecord::Base.yaml_column_permitted_classes, [], true)
         end
       end
 

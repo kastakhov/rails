@@ -20,7 +20,7 @@ module ActionView
           erb.force_encoding(template.source.encoding)
         end
 
-        RailsLts::Support::ERB.legacy_new(erb, nil, erb_trim_mode, '@output_buffer').src
+        ::ERB.new(erb, nil, erb_trim_mode, '@output_buffer').src
       end
     end
   end

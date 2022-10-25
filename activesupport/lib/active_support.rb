@@ -62,3 +62,5 @@ require 'active_support/dependencies'
 require 'active_support/json'
 
 I18n.load_path << "#{File.dirname(__FILE__)}/active_support/locale/en.yml"
+
+require 'active_support/ruby/ruby_3_backward_compatibility'

@@ -23,6 +23,7 @@ end
 if RUBY_VERSION >= '3'
   gem 'rexml'
   gem 'net-smtp'
+  gem 'ruby3-backward-compatibility'
 end
 
 if RUBY_VERSION >= '2.6'
