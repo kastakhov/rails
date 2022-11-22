@@ -40,6 +40,24 @@ module RailsLts
       # is overwritten for Rails 3+
       object.public_send(method, *(args + [keyword_args]))
     end
+
+    module YAML
+      def self.legacy_load(yaml)
+        if ::YAML.respond_to?(:unsafe_load)
+          ::YAML.unsafe_load(yaml)
+        else
+          ::YAML.load(yaml)
+        end
+      end
+
+      def self.legacy_load_file(filename)
+        if ::YAML.respond_to?(:unsafe_load_file)
+          ::YAML.unsafe_load_file(filename)
+        else
+          ::YAML.load_file(filename)
+        end
+      end
+    end
   end
 end
 

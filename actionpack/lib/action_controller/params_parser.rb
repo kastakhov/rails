@@ -35,7 +35,7 @@ module ActionController
             body = request.raw_post
             body.blank? ? {} : Hash.from_xml(body).with_indifferent_access
           when :yaml
-            YAML.load(request.raw_post)
+            RailsLts::Support::YAML.legacy_load(request.raw_post)
           when :json
             body = request.raw_post
             if body.blank?

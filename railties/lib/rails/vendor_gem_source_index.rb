@@ -112,7 +112,11 @@ module Rails
 
     def load_specification(gem_dir)
       spec_file = File.join(gem_dir, '.specification')
-      YAML.load_file(spec_file) if File.exist?(spec_file)
+      if YAML.respond_to?(:unsafe_load_file)
+        YAML.unsafe_load_file(spec_file) if File.exist?(spec_file)
+      else
+        YAML.load_file(spec_file) if File.exist?(spec_file)
+      end
     end
 
     def find_name(*args)

@@ -971,7 +971,12 @@ Run `rake gems:install` to install the missing gems.
     # YAML::load.
     def database_configuration
       require 'erb'
-      YAML::load(ERB.new(IO.read(database_configuration_file)).result)
+      yaml = ERB.new(IO.read(database_configuration_file)).result
+      if YAML.respond_to?(:unsafe_load)
+        YAML.unsafe_load(yaml)
+      else
+        YAML.load(yaml)
+      end
     end
 
     # The path to the current environment's file (<tt>development.rb</tt>, etc.). By

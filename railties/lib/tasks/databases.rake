@@ -235,7 +235,7 @@ namespace :db do
 
       base_dir = ENV['FIXTURES_PATH'] ? File.join(Rails.root, ENV['FIXTURES_PATH']) : File.join(Rails.root, 'test', 'fixtures')
       Dir["#{base_dir}/**/*.yml"].each do |file|
-        if data = YAML::load(ERB.new(IO.read(file)).result)
+        if data = RailsLts::Support::YAML.legacy_load(ERB.new(IO.read(file)).result)
           data.keys.each do |key|
             key_id = Fixtures.identify(key)
 

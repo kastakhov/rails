@@ -44,7 +44,7 @@ GEM
     rake (13.0.6)
     rdoc (2.5.11)
     rexml (3.2.5)
-    ruby3-backward-compatibility (0.2.3)
+    ruby3-backward-compatibility (0.3.0)
     sqlite3 (1.4.2)
     test-unit (3.5.3)
       power_assert

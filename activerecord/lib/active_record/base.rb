@@ -1,6 +1,7 @@
 require 'yaml'
 require 'set'
 require 'active_support/core_ext/class/attribute'
+require 'active_support/version_switches'
 require 'railslts'
 
 module ActiveRecord #:nodoc:
@@ -3221,7 +3222,7 @@ module ActiveRecord #:nodoc:
         return string unless string.is_a?(String) && string =~ /^---/
 
         if ActiveRecord::Base.use_yaml_unsafe_load
-          YAML.load(string) rescue string
+          RailsLts::Support::YAML.legacy_load(string) rescue string
         else
           YAML.safe_load(string, ActiveRecord::Base.yaml_column_permitted_classes, [], true)
         end
