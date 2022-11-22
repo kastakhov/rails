@@ -111,6 +111,8 @@ class Module
     file, line = caller.first.split(':', 2)
     line = line.to_i
 
+    ruby2_kw = RUBY_VERSION >= '2.7' ? 'ruby2_keywords ': ''
+
     methods.each do |method|
       on_nil =
         if options[:allow_nil]
@@ -120,7 +122,7 @@ class Module
         end
 
       module_eval(<<-EOS, file, line)
-        def #{prefix}#{method}(*args, &block)               # def customer_name(*args, &block)
+        #{ruby2_kw} def #{prefix}#{method}(*args, &block)   # (ruby2_keywords) def customer_name(*args, &block)
           #{to}.__send__(#{method.inspect}, *args, &block)  #   client.__send__(:name, *args, &block)
         rescue NoMethodError                                # rescue NoMethodError
           if #{to}.nil?                                     #   if client.nil?

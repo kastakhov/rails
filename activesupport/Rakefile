@@ -14,10 +14,16 @@ RELEASE_NAME  = "REL #{PKG_VERSION}"
 RUBY_FORGE_PROJECT = "activesupport"
 RUBY_FORGE_USER    = "webster132"
 
+test_files = FileList['test/**/*_test.rb']
+
+if RUBY_VERSION < '3'
+ test_files = test_files.exclude('test/ruby_3/**/*_test.rb')
+end
+
 task :default => :test
 Rake::TestTask.new { |t| 
   t.libs << "test"
-  t.pattern = 'test/**/*_test.rb'
+  t.pattern = test_files
   t.verbose = true
   t.warning = false
 }
