@@ -23,7 +23,7 @@ end
 task :default => :test
 Rake::TestTask.new { |t| 
   t.libs << "test"
-  t.pattern = test_files
+  t.test_files = test_files
   t.verbose = true
   t.warning = false
 }
