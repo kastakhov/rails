@@ -385,6 +385,17 @@ class HashExtTest < Test::Unit::TestCase
     original.expects(:delete).never
     original.except(:a)
   end
+
+  def test_indifferent_except
+    original = { :a => 'x', :b => 'y', :c => 10 }.with_indifferent_access
+    expected = { :a => 'x', :b => 'y' }.with_indifferent_access
+
+    [['c'], [:c]].each do |keys|
+      # Should return a new hash with only the given keys.
+      assert_equal expected, original.except(*keys)
+      assert_not_equal expected, original
+    end
+  end
 end
 
 class IWriteMyOwnXML

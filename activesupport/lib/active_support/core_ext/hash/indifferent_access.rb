@@ -149,3 +149,10 @@ if RUBY_VERSION >= "2.5"
     prepend ActiveSupport::CoreExtensions::Hash::Slice
   end
 end
+
+if RUBY_VERSION >= "3"
+  require 'active_support/core_ext/hash/except'
+  class HashWithIndifferentAccess
+    prepend ActiveSupport::CoreExtensions::Hash::Except
+  end
+end
