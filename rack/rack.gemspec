@@ -1,6 +1,8 @@
+require File.expand_path('../../railslts-version/lib/railslts-version', __FILE__)
+
 Gem::Specification.new do |s|
   s.name            = "rack"
-  s.version         = "1.4.7.1"
+  s.version         = "1.4.7.#{RailsLts::VERSION::LTS}"
   s.platform        = Gem::Platform::RUBY
   s.summary         = "a modular Ruby webserver interface"
 
