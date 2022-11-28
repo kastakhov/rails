@@ -36,11 +36,6 @@ end
 
 module RailsLts
   module Support
-    def self.call_with_keywords(object, method, args, keyword_args)
-      # is overwritten for Rails 3+
-      object.public_send(method, *(args + [keyword_args]))
-    end
-
     module YAML
       def self.legacy_load(yaml)
         if ::YAML.respond_to?(:unsafe_load)
@@ -59,8 +54,4 @@ module RailsLts
       end
     end
   end
-end
-
-if RUBY_VERSION >= '3'
-  require_relative './version_switches/ruby_3'
 end
