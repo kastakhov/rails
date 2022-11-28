@@ -125,7 +125,7 @@ module ActionController #:nodoc:
 
     private
       def generate_sid(sidbits)
-        "%0#{sidbits / 4}x" % rand(2 << (sidbits - 1) - 1)
+        "%0#{sidbits / 4}x" % rand(1 << sidbits)
       end
 
       def initialize_containers
