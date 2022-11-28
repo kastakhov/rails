@@ -6,6 +6,27 @@ class TestController < ActionController::Base
   attr_accessor :delegate_attr
   def delegate_method() end
   def rescue_action(e) raise end
+
+  def helper_method_without_keywords(greet)
+    "Hello #{greet}!"
+  end
+  helper_method :helper_method_without_keywords
+
+  def render_without_keywords
+    render :inline => "<%= helper_method_without_keywords('World') %>"
+  end
+
+  if RUBY_VERSION >= '2'
+    eval <<-RUBY
+      helper_method def helper_method_with_keywords(greet:)
+        "Hello \#{greet}!"
+      end
+
+      def render_with_keywords
+        render :inline => "<%= helper_method_with_keywords(:greet => 'World') %>"
+      end
+    RUBY
+  end
 end
 
 module Fun
@@ -158,6 +179,24 @@ class HelperTest < Test::Unit::TestCase
 
     # fun/pdf_helper.rb
     assert methods.include?('foobar')
+  end
+
+  def test_helper_method_without_keywords
+    request  = ActionController::TestRequest.new
+    response = ActionController::TestResponse.new
+    request.action = 'render_without_keywords'
+
+    assert_equal 'Hello World!', TestController.process(request, response).body
+  end
+
+  if RUBY_VERSION >= '2'
+    def test_helper_method_with_keywords
+      request  = ActionController::TestRequest.new
+      response = ActionController::TestResponse.new
+      request.action = 'render_with_keywords'
+
+      assert_equal 'Hello World!', TestController.process(request, response).body
+    end
   end
 
   private

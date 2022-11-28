@@ -161,9 +161,11 @@ module ActionController #:nodoc:
       # In a view:
       #  <% if logged_in? -%>Welcome, <%= current_user.name %><% end -%>
       def helper_method(*methods)
+        ruby2_kw = RUBY_VERSION >= '2.7' ? 'ruby2_keywords ' : ''
+
         methods.flatten.each do |method|
           master_helper_module.module_eval <<-end_eval
-            def #{method}(*args, &block)                    # def current_user(*args, &block)
+            #{ruby2_kw} def #{method}(*args, &block)        # (ruby2_keywords) def current_user(*args, &block)
               controller.send(%(#{method}), *args, &block)  #   controller.send(%(current_user), *args, &block)
             end                                             # end
           end_eval
