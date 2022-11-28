@@ -129,8 +129,11 @@ namespace :railslts do
     # Move *.gem packages from sub-projects's pkg to root's pkg for easier releasing
     task :consolidate do
       SUB_PROJECT_PATHS.each do |project|
-        pkg_folder = "#{project}/pkg"
-        gem_path = "#{pkg_folder}/#{project}-#{RailsLts::VERSION::STRING}.gem"
+        gem_path = if project == 'rack'
+          "rack/rack-1.4.7.#{RailsLts::VERSION::LTS}.gem"
+        else
+          "#{project}/pkg/#{project}-#{RailsLts::VERSION::STRING}.gem"
+        end
         puts "Moving .gem from #{gem_path} to pkg ..."
         File.file?(gem_path) or fail.call("Not found: #{gem_path}")
         consolidated_pkg_folder = 'pkg'
