@@ -1,13 +1,13 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    rake (0.8.7)
+    rake (13.0.6)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  rake (= 0.8.7)
+  rake
 
 BUNDLED WITH
-   1.16.3
+   2.3.23

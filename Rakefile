@@ -1,6 +1,9 @@
 require 'rake'
 require 'rubygems/package_task'
 require File.expand_path('../railslts-version/lib/railslts-version', __FILE__)
+require File.expand_path('../rack/lib/rack/version', __FILE__)
+
+GEM_SERVER = 'railslts-gems-admin.makandra.de'
 
 BRANCH = '2-3-lts'
 SUB_PROJECT_PATHS = %w(activesupport railties actionpack actionmailer activeresource activerecord railslts-version rack)
@@ -104,7 +107,7 @@ namespace :railslts do
 
     task :ensure_old_rubygems do
       if Gem::VERSION != '1.8.30'
-        fail "Please package with RubyGems version 1.8.30"
+        fail "Please package with RubyGems version 1.8.30 (you can use rascal shell ruby-1.8.7 and then bundle exec rake railslts:gems:build)"
       end
     end
 
@@ -130,7 +133,7 @@ namespace :railslts do
     task :consolidate do
       SUB_PROJECT_PATHS.each do |project|
         gem_path = if project == 'rack'
-          "rack/rack-1.4.7.#{RailsLts::VERSION::LTS}.gem"
+          "rack/rack-#{Rack::RELEASE}.gem"
         else
           "#{project}/pkg/#{project}-#{RailsLts::VERSION::STRING}.gem"
         end
@@ -168,7 +171,8 @@ namespace :railslts do
 
     task :ensure_ready do
       jobs = [
-        "Did you update the version in railslts-version/lib/railslts-version.rb (currently #{RailsLts::VERSION::STRING})?",
+        "Did you update the version in railslts-version/lib/railslts-version.rb (currently #{RailsLts::VERSION::STRING}), if required?",
+        "Did you update the version in rack/lib/version.rb (currently #{Rack::RELEASE}), if required?",
         'Did you update the LICENSE files using `rake railslts:update_license`?',
         'Did you commit and push your changes, as well as the changes by the Rake tasks mentioned above?',
         'Did you build static gems using `rake railslts:gems:build` (those are not pushed to Git)?',
@@ -205,22 +209,28 @@ namespace :railslts do
     end
 
     task :push_to_gem_server do
-      print 'Enter password for railslts-gems-admin.makandra.de: '
+      print "Enter password for #{GEM_SERVER}: "
       begin
         system('stty -echo')
         password = $stdin.gets.chomp
       ensure
         system('stty echo')
       end
-      server_url = "https://admin:#{password}@railslts-gems-admin.makandra.de"
+      server_url = "https://admin:#{password}@#{GEM_SERVER}"
       gem_paths = Dir.glob('pkg/*.gem')
       gem_paths.size == ALL_PROJECT_PATHS.size or fail.call("Expected #{ALL_PROJECT_PATHS.size} .gem files, but only got #{gem_paths.inspect}")
       gem_paths.each do |gem_path|
-        puts "Publishing #{gem_path}"
-        # Hide STDOUT since that will print the server URL including the password
-        run.call("gem push #{gem_path} --host #{server_url} > /dev/null")
-        puts "Waiting a bit..."
-        sleep 3
+        gem_name, gem_version = gem_path.match(%r{pkg/(.*)-([^-]*)\.gem}).captures
+        current_version = `gem info #{gem_name} --clear-sources -s #{server_url} -r`[/#{Regexp.escape(gem_name)} \((.*?)\)/, 1]
+        if Gem::Version.new(gem_version) > Gem::Version.new(current_version)
+          puts "Publishing #{gem_path}"
+          # Hide STDOUT since that will print the server URL including the password
+          run.call("gem push #{gem_path} --host #{server_url} > /dev/null")
+          puts "Waiting a bit..."
+          sleep 3
+        else
+          puts "\e[31mGem #{gem_name} #{gem_version} is not a new version, skipping...\e[0m"
+        end
       end
     end
 
