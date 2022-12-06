@@ -221,15 +221,17 @@ namespace :railslts do
       gem_paths.size == ALL_PROJECT_PATHS.size or fail.call("Expected #{ALL_PROJECT_PATHS.size} .gem files, but only got #{gem_paths.inspect}")
       gem_paths.each do |gem_path|
         gem_name, gem_version = gem_path.match(%r{pkg/(.*)-([^-]*)\.gem}).captures
-        current_version = `gem info #{gem_name} --clear-sources -s #{server_url} -r`[/#{Regexp.escape(gem_name)} \((.*?)\)/, 1]
-        if Gem::Version.new(gem_version) > Gem::Version.new(current_version)
+        gem_info = `gem info #{gem_name} --clear-sources -s #{server_url} -r -a`
+        pushed_versions = gem_info[/#{Regexp.escape(gem_name)} \((.*?)\)/, 1].split(', ').map { |v| Gem::Version.new(v) }
+        current_version = Gem::Version.new(gem_version)
+        if pushed_versions.any? { |v| v == current_version }
+          puts "\e[31mGem #{gem_name} #{gem_version} is not a new version, skipping...\e[0m"
+        else
           puts "Publishing #{gem_path}"
           # Hide STDOUT since that will print the server URL including the password
           run.call("gem push #{gem_path} --host #{server_url} > /dev/null")
           puts "Waiting a bit..."
           sleep 3
-        else
-          puts "\e[31mGem #{gem_name} #{gem_version} is not a new version, skipping...\e[0m"
         end
       end
     end
