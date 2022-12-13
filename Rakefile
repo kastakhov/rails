@@ -222,7 +222,7 @@ namespace :railslts do
       gem_paths.each do |gem_path|
         gem_name, gem_version = gem_path.match(%r{pkg/(.*)-([^-]*)\.gem}).captures
         gem_info = `gem info #{gem_name} --clear-sources -s #{server_url} -r -a`
-        pushed_versions = gem_info[/#{Regexp.escape(gem_name)} \((.*?)\)/, 1].split(', ').map { |v| Gem::Version.new(v) }
+        pushed_versions = (gem_info[/#{Regexp.escape(gem_name)} \((.*?)\)/, 1] || '').split(', ').map { |v| Gem::Version.new(v) }
         current_version = Gem::Version.new(gem_version)
         if pushed_versions.any? { |v| v == current_version }
           puts "\e[31mGem #{gem_name} #{gem_version} is not a new version, skipping...\e[0m"
