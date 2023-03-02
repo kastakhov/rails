@@ -1157,15 +1157,9 @@ end
 class FinderTestWithStrictUnambiguousTableNames < ActiveRecord::TestCase
   fixtures :companies, :topics, :entrants, :developers, :developers_projects, :posts, :comments, :accounts, :authors, :customers, :categories, :categorizations, :credentials, :credential_usages
 
-  class Configuration
-    def strict_unambiguous_table_names
-      true
-    end
-  end
-
   def setup
     @old_configuration = RailsLts.configuration
-    RailsLts.configuration = Configuration.new
+    RailsLts.configuration = RailsLts::Configuration.new(:strict_unambiguous_table_names => true)
   end
 
   def teardown

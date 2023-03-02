@@ -2377,6 +2377,7 @@ module ActiveRecord #:nodoc:
 
           return '1 = 2' if !top_level && attrs.is_a?(Hash) && attrs.empty?
 
+          bind_variables = []
           conditions = attrs.map do |attr, value|
             table_name = default_table_name
 
@@ -2391,6 +2392,26 @@ module ActiveRecord #:nodoc:
                 attr_table_name = table_name
               end
 
+              bind_value = value
+              if RailsLts.configuration && RailsLts.configuration.cast_integers_on_mysql_string_columns
+                column = columns_hash[attr.to_s]
+                mysql_column = defined?(ActiveRecord::ConnectionAdapters::MysqlColumn) && column.is_a?(ActiveRecord::ConnectionAdapters::MysqlColumn)
+                mysql2_column = defined?(ActiveRecord::ConnectionAdapters::Mysql2Column) && column.is_a?(ActiveRecord::ConnectionAdapters::Mysql2Column)
+                if (mysql_column || mysql2_column) && column.type == :string
+                  bind_value = case value
+                  when true
+                    '1'
+                  when false
+                    '0'
+                  when Numeric
+                    value.to_s
+                  else
+                    value
+                  end
+                end
+              end
+              bind_variables << bind_value
+
               attribute_condition("#{attr_table_name}.#{connection.quote_column_name(attr)}", value)
             elsif top_level
               if RailsLts.configuration && RailsLts.configuration.strict_unambiguous_table_names
@@ -2398,13 +2419,14 @@ module ActiveRecord #:nodoc:
                   raise StatementInvalid.new("`#{attr}` is a column name and used as a table name")
                 end
               end
+              bind_variables << value
               sanitize_sql_hash_for_conditions(value, connection.quote_table_name(attr.to_s), false)
             else
               raise ActiveRecord::StatementInvalid
             end
           end.join(' AND ')
 
-          replace_bind_variables(conditions, expand_range_bind_variables(attrs.values))
+          replace_bind_variables(conditions, expand_range_bind_variables(bind_variables))
         end
         alias_method :sanitize_sql_hash, :sanitize_sql_hash_for_conditions
 

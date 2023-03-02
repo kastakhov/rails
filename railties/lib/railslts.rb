@@ -14,6 +14,8 @@ module RailsLts
 
     attr_accessor :allow_strings_for_polymorphic_paths
 
+    attr_accessor :cast_integers_on_mysql_string_columns
+
     def self.prepare(rails_lts_options)
       RailsLts.configuration = new(rails_lts_options)
     end
@@ -50,12 +52,14 @@ module RailsLts
         self.escape_html_entities_in_json = true
         self.strict_unambiguous_table_names = true
         self.allow_strings_for_polymorphic_paths = false
+        self.cast_integers_on_mysql_string_columns = true
       when :compatible
         self.disable_json_parsing = false
         self.disable_xml_parsing = false
         self.escape_html_entities_in_json = false
         self.strict_unambiguous_table_names = false
         self.allow_strings_for_polymorphic_paths = false
+        self.cast_integers_on_mysql_string_columns = false
       end
     end
 

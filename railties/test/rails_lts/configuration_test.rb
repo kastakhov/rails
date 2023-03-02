@@ -10,6 +10,7 @@ class RailsLtsConfigurationTest < ActiveSupport::TestCase
     assert_equal false, configuration.escape_html_entities_in_json
     assert_equal false, configuration.strict_unambiguous_table_names
     assert_equal false, configuration.allow_strings_for_polymorphic_paths
+    assert_equal false, configuration.cast_integers_on_mysql_string_columns
   end
 
   test 'hardened defaults' do
@@ -19,6 +20,7 @@ class RailsLtsConfigurationTest < ActiveSupport::TestCase
     assert_equal true, configuration.escape_html_entities_in_json
     assert_equal true, configuration.strict_unambiguous_table_names
     assert_equal false, configuration.allow_strings_for_polymorphic_paths
+    assert_equal true, configuration.cast_integers_on_mysql_string_columns
   end
 
   test 'disabling one option' do
