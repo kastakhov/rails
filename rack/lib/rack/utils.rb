@@ -61,7 +61,13 @@ module Rack
     class << self
       attr_accessor :key_space_limit
       attr_accessor :param_depth_limit
-      attr_accessor :multipart_part_limit
+      attr_accessor :multipart_total_part_limit
+      attr_accessor :multipart_file_limit
+
+      # multipart_part_limit is the original name of multipart_file_limit, but
+      # the limit only counts parts with filenames.
+      alias multipart_part_limit multipart_file_limit
+      alias multipart_part_limit= multipart_file_limit=
     end
 
     # The default number of bytes to allow parameter keys to take up.
@@ -71,11 +77,15 @@ module Rack
     # Default depth at which the parameter parser will raise an exception for
     # being too deep.  This helps prevent SystemStackErrors
     self.param_depth_limit = 100
-    #
-    # The maximum number of parts a request can contain. Accepting to many part
+
+    # The maximum number of file parts a request can contain. Accepting too many parts
     # can lead to the server running out of file handles.
     # Set to `0` for no limit.
-    self.multipart_part_limit = (ENV['RACK_MULTIPART_PART_LIMIT'] || 128).to_i
+    self.multipart_file_limit = (ENV['RACK_MULTIPART_FILE_LIMIT'] || ENV['RACK_MULTIPART_PART_LIMIT'] || 128).to_i
+
+    # The maximum total number of parts a request can contain. Accepting too
+    # many can lead to excessive memory use and parsing time.
+    self.multipart_total_part_limit = (ENV['RACK_MULTIPART_TOTAL_PART_LIMIT'] || 4096).to_i
 
     # Stolen from Mongrel, with some small modifications:
     # Parses a query string by breaking it up at the '&'

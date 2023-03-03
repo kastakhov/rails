@@ -639,7 +639,7 @@ EOF
     f[:tempfile].size.should.equal 76
   end
 
-  should "MultipartLimitError when request has too many multipart parts if limit set" do
+  should "MultipartLimitError when request has too many multipart file parts if limit set" do
     begin
       data = 10000.times.map { "--AaB03x\r\nContent-Type: text/plain\r\nContent-Disposition: attachment; name=#{SecureRandom.hex(10)}; filename=#{SecureRandom.hex(10)}\r\n\r\ncontents\r\n" }.join("\r\n")
       data += "--AaB03x--\r"
@@ -652,6 +652,22 @@ EOF
 
       request = Rack::Request.new Rack::MockRequest.env_for("/", options)
       lambda { request.POST }.should.raise(Rack::Multipart::MultipartLimitError)
+    end
+  end
+
+  should "MultipartPartLimitError when request has too many multipart total parts if limit set" do
+    begin
+      data = 10000.times.map { |i| "--AaB03x\r\ncontent-type: text/plain\r\ncontent-disposition: attachment; name=#{i.to_s(16)}\r\n\r\ncontents\r\n" }.join("\r\n")
+      data += "--AaB03x--\r"
+
+      options = {
+        "CONTENT_TYPE" => "multipart/form-data; boundary=AaB03x",
+        "CONTENT_LENGTH" => data.length.to_s,
+        :input => StringIO.new(data)
+      }
+
+      request = Rack::Request.new Rack::MockRequest.env_for("/", options)
+      lambda { request.POST }.should.raise(Rack::Multipart::MultipartTotalPartLimitError)
     end
   end
 
@@ -732,6 +748,31 @@ EOF
                       :input => input)
 
     req.params.keys.should.equal ["<soap-start>"]
+  end
+
+  should "record tempfiles from multipart form data in env[rack.tempfiles]" do
+    input = <<EOF
+--AaB03x\r
+content-disposition: form-data; name="fileupload"; filename="foo.jpg"\r
+Content-Type: image/jpeg\r
+Content-Transfer-Encoding: base64\r
+\r
+/9j/4AAQSkZJRgABAQAAAQABAAD//gA+Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcg\r
+--AaB03x\r
+content-disposition: form-data; name="fileupload"; filename="bar.jpg"\r
+Content-Type: image/jpeg\r
+Content-Transfer-Encoding: base64\r
+\r
+/9j/4AAQSkZJRgABAQAAAQABAAD//gA+Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcg\r
+--AaB03x--\r
+EOF
+    env = Rack::MockRequest.env_for("/",
+                          "CONTENT_TYPE" => "multipart/form-data, boundary=AaB03x",
+                          "CONTENT_LENGTH" => input.size,
+                          :input => input)
+    req = Rack::Request.new(env)
+    req.params
+    env['rack.tempfiles'].size.should.equal(2)
   end
 
   should "not try to interpret binary as utf8" do
