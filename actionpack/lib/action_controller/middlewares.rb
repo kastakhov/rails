@@ -4,6 +4,8 @@ use "Rack::Lock", :if => lambda {
 
 use "ActionController::Failsafe"
 
+use "Rack::TempfileReaper"
+
 use lambda { ActionController::Base.session_store },
     lambda { ActionController::Base.session_options }
 

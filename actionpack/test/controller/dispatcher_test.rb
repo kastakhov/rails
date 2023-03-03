@@ -51,6 +51,19 @@ class DispatcherTest < Test::Unit::TestCase
     dispatcher.call(nil)
   end
 
+  def test_has_default_middlewares
+    middlewares = Dispatcher.middleware.map(&:klass).compact.map(&:to_s)
+    assert_equal %w[
+      Rack::Lock
+      ActionController::Failsafe
+      Rack::TempfileReaper
+      ActionController::ParamsParser
+      Rack::MethodOverride
+      Rack::Head
+      ActionController::StringCoercion
+    ], middlewares
+  end
+
   def test_doesnt_wrap_call_in_reloader_if_not_in_loading_mode
     Reloader.expects(:run).never
     dispatch
