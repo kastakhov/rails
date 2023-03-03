@@ -8,6 +8,8 @@ class MultipartParamsParsingTest < ActionController::IntegrationTest
 
     def parse
       self.class.last_request_parameters = request.request_parameters
+      # avoid reaping the tempfiles we want to observe
+      request.env['rack.tempfiles'] = []
       head :ok
     end
 
