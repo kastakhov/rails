@@ -303,8 +303,8 @@ module Rack
     end
 
     def accept_encoding
-      @env["HTTP_ACCEPT_ENCODING"].to_s.split(/\s*,\s*/).map do |part|
-        encoding, parameters = part.split(/\s*;\s*/, 2)
+      @env["HTTP_ACCEPT_ENCODING"].to_s.split(",").each(&:strip!).map do |part|
+        encoding, parameters = part.split(";", 2).each(&:strip!)
         quality = 1.0
         if parameters and /\Aq=([\d.]+)/ =~ parameters
           quality = $1.to_f

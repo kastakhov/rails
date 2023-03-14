@@ -3,6 +3,7 @@ require 'cgi'
 require 'rack/request'
 require 'rack/mock'
 require 'securerandom'
+require 'timeout'
 
 describe Rack::Request do
   should "wrap the rack variables" do
@@ -875,6 +876,12 @@ EOF
       Rack::Request.new(Rack::MockRequest.env_for("", "HTTP_ACCEPT_ENCODING" => x)).accept_encoding
     end
 
+    parser_with_timeout = lambda do |x, timeout|
+      Timeout.timeout(timeout) do
+        parser.call(x)
+      end
+    end
+
     parser.call(nil).should.equal([])
 
     parser.call("compress, gzip").should.equal([["compress", 1.0], ["gzip", 1.0]])
@@ -885,6 +892,8 @@ EOF
 
     parser.call("gzip ; q=0.9").should.equal([["gzip", 0.9]])
     parser.call("gzip ; deflate").should.equal([["gzip", 1.0]])
+
+    parser_with_timeout.call(" " * 10000 + "a,", 0.01).should.equal([["a", 1.0]])
   end
 
   ip_app = lambda { |env|
