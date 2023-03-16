@@ -13,7 +13,7 @@ PATH
 PATH
   remote: railslts-version
   specs:
-    railslts-version (2.3.18.48)
+    railslts-version (2.3.18.49)
 
 GEM
   remote: https://rubygems.org/
