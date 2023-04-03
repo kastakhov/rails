@@ -64,3 +64,10 @@ require 'active_support/json'
 I18n.load_path << "#{File.dirname(__FILE__)}/active_support/locale/en.yml"
 
 require 'active_support/ruby/ruby_3_backward_compatibility'
+
+begin
+  require 'active_support/rails_lts/time_patch'
+rescue
+  message = 'Failed to patch Time.rfc2822. Cannot fix CVE-2023-28756.'
+  warn message
+end
