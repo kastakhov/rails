@@ -1,3 +1,5 @@
+require 'uri'
+
 module URI
 
   # URI version 0.9 seems not be vulnerable for ReDoS, see the rfc2396 implementation in the fixed gem versions
