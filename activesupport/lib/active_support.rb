@@ -71,3 +71,5 @@ rescue
   message = 'Failed to patch Time.rfc2822. Cannot fix CVE-2023-28756.'
   warn message
 end
+
+require 'active_support/rails_lts/uri_patch'
