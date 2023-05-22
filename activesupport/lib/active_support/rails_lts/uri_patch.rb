@@ -9,19 +9,19 @@ module URI
   unless RUBY_VERSION < '1.9'
 
     if const_defined?(:RFC3986_Parser, false)
-      rails_lts_supported_uri_versions = [
-        '0.12.1',   # 5c4f7d04bf81f31f2767a75c52d87b27910b4ad8 CVE-2023-28755 Patch
-        '0.12.0',   # 72f22716f86fe6bccf52c167cbb30e1a6e70aaca
-        '0.11.1',   # f0a10975c33656a976b51b16a6475c5dbe368535 CVE-2023-28755 Patch
-        '0.11.0',   # 1619f713e60ddffd238276e5f03f4f916074476b
-        '0.10.2',   # 0ff6c0360ae29643a433f385fd49587589b8cd02 CVE-2023-28755 Patch
-        '0.10.1',   # 94e9ac5d5588718556bd1be1665d7ad60633b275
-        '0.10.0.2', # 359e6bc3443b26e0c416d52bea34605c6975dad7
-        '0.10.0.1', # 83ff0f037018eaba5e434bb68ca96d906ad1b9f7 CVE-2023-28755 Patch
-        '0.10.0',   # 0bcfaa5e2c3e1476fb2eea045836a304026f6c51
-      ]
-
       class RFC3986_Parser
+        rails_lts_supported_uri_versions = [
+          '0.12.1',   # 5c4f7d04bf81f31f2767a75c52d87b27910b4ad8 CVE-2023-28755 Patch
+          '0.12.0',   # 72f22716f86fe6bccf52c167cbb30e1a6e70aaca
+          '0.11.1',   # f0a10975c33656a976b51b16a6475c5dbe368535 CVE-2023-28755 Patch
+          '0.11.0',   # 1619f713e60ddffd238276e5f03f4f916074476b
+          '0.10.2',   # 0ff6c0360ae29643a433f385fd49587589b8cd02 CVE-2023-28755 Patch
+          '0.10.1',   # 94e9ac5d5588718556bd1be1665d7ad60633b275
+          '0.10.0.2', # 359e6bc3443b26e0c416d52bea34605c6975dad7
+          '0.10.0.1', # 83ff0f037018eaba5e434bb68ca96d906ad1b9f7 CVE-2023-28755 Patch
+          '0.10.0',   # 0bcfaa5e2c3e1476fb2eea045836a304026f6c51
+        ]
+
         uri_version = URI::VERSION
 
         # Eval is necessary for the Ruby 1.8 parser, which does not support named Regex groups
