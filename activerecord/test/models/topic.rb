@@ -78,3 +78,7 @@ module Web
     has_many :replies, :dependent => :destroy, :foreign_key => "parent_id", :class_name => 'Web::Reply'
   end
 end
+
+if RUBY_VERSION >= '2'
+  require 'models/topic_kwarg_scopes'
+end

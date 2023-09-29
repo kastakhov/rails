@@ -99,9 +99,13 @@ module ActiveRecord
           end, &block)
         end
 
-        singleton_class.send :define_method, name do |*args|
+        sym = singleton_class.send :define_method, name do |*args|
           scopes[name].call(self, *args)
         end
+        if RUBY_VERSION > '2.7'
+          singleton_class.send(:ruby2_keywords, name)
+        end
+        sym
       end
     end
 
@@ -188,6 +192,10 @@ module ActiveRecord
             end
           end
         end
+      end
+
+      if RUBY_VERSION >= '2.7'
+        ruby2_keywords :method_missing
       end
 
       def load_found

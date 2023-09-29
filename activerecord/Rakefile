@@ -64,7 +64,9 @@ for adapter in %w( mysql mysql2 postgresql sqlite sqlite3 firebird db2 oracle sy
       t.libs << "test" << "test/connections/native_#{adapter}"
     end
     adapter_short = (adapter == 'db2' || adapter == 'mysql2') ? adapter : adapter[/^[a-z]+/]
-    t.test_files=Dir.glob( "test/cases/**/*_test{,_#{adapter_short}}.rb" ).sort
+    ruby_3_code = RUBY_VERSION >= "2" ? [] : Dir.glob('test/cases/ruby_3/**/*_test.rb')
+    test_files = Dir.glob( "test/cases/**/*_test{,_#{adapter_short}}.rb" ) - ruby_3_code
+    t.test_files = test_files.sort
     t.verbose = true
     t.warning = false
   }
