@@ -502,6 +502,18 @@ describe Rack::Utils::HeaderHash do
     h['foo'].should.be.nil
     h.should.not.include 'foo'
   end
+
+  should "be constructable via [key, value]" do
+    h = Rack::Utils::HeaderHash['foo', 'bar']
+    h['foo'].should.equal('bar')
+    h['FOO'].should.equal('bar')
+  end
+
+  should "be constructable via [{key: value}]" do
+    h = Rack::Utils::HeaderHash[{'foo' => 'bar'}]
+    h['foo'].should.equal('bar')
+    h['FOO'].should.equal('bar')
+  end
 end
 
 describe Rack::Utils::Context do

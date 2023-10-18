@@ -420,6 +420,10 @@ module Rack
         HeaderHash === hash ? hash : super(hash)
       end
 
+      def self.[](*values)
+        new(Hash[*values])
+      end
+
       def initialize(hash={})
         super()
         @names = {}
