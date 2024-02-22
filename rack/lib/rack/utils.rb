@@ -371,6 +371,10 @@ module Rack
         end
         ranges << (r0..r1)  if r0 <= r1
       end
+
+      total_size = ranges.reduce(0) { |sum, range| sum + [0, (range.end - range.begin + 1)].max }
+      return [] if total_size > size
+
       ranges
     end
     module_function :byte_ranges
