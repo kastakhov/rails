@@ -1,7 +1,7 @@
 PATH
   remote: rack
   specs:
-    rack (1.4.7.16)
+    rack (1.4.7.18)
 
 PATH
   remote: railslts-version
