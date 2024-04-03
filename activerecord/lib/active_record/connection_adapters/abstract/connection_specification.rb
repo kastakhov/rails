@@ -73,7 +73,14 @@ module ActiveRecord
             begin
               require "active_record/connection_adapters/#{spec[:adapter]}_adapter"
             rescue LoadError
-              raise "Please install the #{spec[:adapter]} adapter: `gem install activerecord-#{spec[:adapter]}-adapter` (#{$!})"
+              begin
+                if spec[:adapter] == 'mysql2'
+                  $:.push("#{File.dirname(__FILE__)}/../../../../mysql2/lib")
+                end
+                require "active_record/connection_adapters/#{spec[:adapter]}_adapter"
+              rescue LoadError
+                raise "Please install the #{spec[:adapter]} adapter: `gem install activerecord-#{spec[:adapter]}-adapter` (#{$!})"
+              end
             end
           ensure
             require 'active_record/ext/mysql2' if spec[:adapter] == 'mysql2'
