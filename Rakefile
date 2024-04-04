@@ -54,7 +54,7 @@ class TestRunner
   end
 end
 
-rails_gemspec = eval(File.read('rails.gemspec'))
+rails_gemspec = eval(File.read('rails.gemspec'), nil, 'rails.gemspec')
 Gem::PackageTask.new(rails_gemspec) do |p|
   p.gem_spec = rails_gemspec
 end
