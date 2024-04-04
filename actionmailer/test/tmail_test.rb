@@ -5,7 +5,7 @@ class TMailMailTest < Test::Unit::TestCase
     m = TMail::Mail.new
     expected = 'something_with_underscores'
     m.encoding = 'quoted-printable'
-    quoted_body = [expected].pack('*M')
+    quoted_body = [expected].pack('M*')
     m.body = quoted_body
     assert_equal "something_with_underscores=\n", m.quoted_body
     assert_equal expected, m.body
