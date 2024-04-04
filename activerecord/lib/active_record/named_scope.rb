@@ -103,6 +103,7 @@ module ActiveRecord
           scopes[name].call(self, *args)
         end
         if RUBY_VERSION > '2.7'
+          scopes[name].ruby2_keywords
           singleton_class.send(:ruby2_keywords, name)
         end
         sym
