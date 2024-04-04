@@ -15,6 +15,7 @@ GEM
     bacon (1.2.0)
     base64 (0.2.0)
     bigdecimal (3.1.7)
+    csv (3.3.0)
     daemons (1.4.1)
     drb (2.2.1)
     eventmachine (1.2.7)
@@ -24,6 +25,7 @@ GEM
     mini_portile2 (2.8.5)
     mocha (0.9.7)
       rake
+    mutex_m (0.2.0)
     mysql2 (0.5.6)
     net-protocol (0.2.2)
       timeout
@@ -33,6 +35,7 @@ GEM
     nokogiri (1.13.6)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
+    observer (0.1.2)
     pg (1.5.6)
     power_assert (2.0.3)
     racc (1.7.3)
@@ -59,15 +62,18 @@ DEPENDENCIES
   bacon
   base64
   bigdecimal
+  csv
   drb
   fcgi
   libxml-ruby (= 3.0.0)
   memcache-client
   mocha (= 0.9.7)
+  mutex_m
   mysql2
   net-smtp
   nkf
   nokogiri (= 1.13.6)
+  observer
   pg
   rack!
   railslts-version!

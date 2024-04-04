@@ -65,8 +65,11 @@ end
 if RUBY_VERSION >= '3.3'
   gem 'base64'
   gem 'bigdecimal'
-  gem 'nkf'
+  gem 'csv'
   gem 'drb'
+  gem 'mutex_m'
+  gem 'nkf'
+  gem 'observer'
 end
 
 gem 'libxml-ruby', '=3.0.0'
