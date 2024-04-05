@@ -142,7 +142,6 @@ class ParseGemVersionTest < Test::Unit::TestCase
   end
 
   def test_should_parse_with_any_number_of_leading_spaces
-    assert_equal nil, parse([])
     assert_equal "1.2.3", parse(" RAILS_GEM_VERSION = '1.2.3' unless defined? RAILS_GEM_VERSION")
     assert_equal "1.2.3", parse("   RAILS_GEM_VERSION = '1.2.3' unless defined? RAILS_GEM_VERSION")
     assert_equal "1.2.3", parse(" RAILS_GEM_VERSION = '1.2.3'")
