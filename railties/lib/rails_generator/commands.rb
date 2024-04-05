@@ -298,7 +298,14 @@ HELP
           file(relative_source, relative_destination, template_options) do |file|
             # Evaluate any assignments in a temporary, throwaway binding.
             vars = template_options[:assigns] || {}
-            b = template_options[:binding] || binding
+
+            b = template_options[:binding]
+            b ||= if RUBY_VERSION >= '3.2'
+              (Proc.new {}).binding
+            else
+              binding
+            end
+
             if b.respond_to?(:local_variable_set)
               vars.each do |k,v|
                 b.local_variable_set(:"#{k}", v)
