@@ -1,10 +1,14 @@
 # Fixes the rexml vulnerability disclosed at:
 # http://www.ruby-lang.org/en/news/2008/08/23/dos-vulnerability-in-rexml/
 # This fix is identical to rexml-expansion-fix version 1.0.1
-require 'rexml/rexml'
+begin
+  require 'rexml/rexml'
+rescue LoadError
+  # on Ruby 3 this is not stdlib, and we don't want to force users to add it to the Gemfile
+end
 
 # Earlier versions of rexml defined REXML::Version, newer ones REXML::VERSION
-unless (defined?(REXML::VERSION) ? REXML::VERSION : REXML::Version) > "3.1.7.2"
+unless !defined?(REXML) || (defined?(REXML::VERSION) ? REXML::VERSION : REXML::Version) > "3.1.7.2"
   require 'rexml/document'
 
   # REXML in 1.8.7 has the patch but didn't update Version from 3.1.7.2.
