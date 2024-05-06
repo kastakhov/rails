@@ -12,6 +12,10 @@ gem 'fcgi'
 gem 'bacon'
 gem 'thin'
 
+if RUBY_VERSION < '2'
+  gem 'daemons', '< 1.4'
+end
+
 if RUBY_VERSION >= '2'
   gem 'webrick'
 end
