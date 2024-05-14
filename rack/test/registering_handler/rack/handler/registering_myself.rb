@@ -1,3 +1,5 @@
+require 'rack/handler'
+
 module Rack
   module Handler
     class RegisteringMyself
