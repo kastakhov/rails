@@ -177,7 +177,7 @@ end
 
 # Create compressed packages
 
-dist_dirs = [ "lib", "test", "examples" ]
+dist_dirs = [ "lib", "test", "examples", "mysql2" ]
 
 spec = Gem::Specification.new do |s|
   s.platform = Gem::Platform::RUBY
