@@ -231,7 +231,7 @@ module ActionController # :nodoc:
 
       def convert_cookies!
         set_cookie = headers['Set-Cookie']
-        cookies = set_cookie.is_a?(String) ? set_cookie.lines.to_a : Array(set_cookie)
+        cookies = set_cookie.is_a?(String) ? set_cookie.split("\n") : Array(set_cookie)
         cookies.compact!
         headers['Set-Cookie'] = cookies unless cookies.empty?
       end

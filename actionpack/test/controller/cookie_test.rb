@@ -58,6 +58,11 @@ class CookieTest < ActionController::TestCase
       cookies.permanent.signed[:remember_me] = 100
     end
 
+    def set_cookies_manually
+      headers['Set-Cookie'] = "foo=bar; path=/\nbar=baz; path=/"
+      cookies['user-name'] = "david"
+    end
+
     def rescue_action(e)
       raise unless ActionView::MissingTemplate # No templates here, and we don't care about the output
     end
@@ -123,7 +128,7 @@ class CookieTest < ActionController::TestCase
   def test_multiple_cookies
     get :set_multiple_cookies
     assert_equal 2, @response.cookies.size
-    assert_equal "user_name=david; path=/; expires=Mon, 10-Oct-2005 05:00:00 GMT\n", @response.headers["Set-Cookie"][0]
+    assert_equal "user_name=david; path=/; expires=Mon, 10-Oct-2005 05:00:00 GMT", @response.headers["Set-Cookie"][0]
     assert_equal "login=XJ-122; path=/", @response.headers["Set-Cookie"][1]
     assert_equal({"login" => "XJ-122", "user_name" => "david"}, @response.cookies)
   end
@@ -191,6 +196,11 @@ class CookieTest < ActionController::TestCase
     get :set_permanent_signed_cookie
     assert_match %r(#{20.years.from_now.year}), @response.headers["Set-Cookie"].first
     assert_equal 100, @controller.send(:cookies).signed[:remember_me]
+  end
+
+  def test_manual_cookie_header_is_merged
+    get :set_cookies_manually
+    assert_equal ["foo=bar; path=/", "bar=baz; path=/", "user-name=david; path=/"], @response.headers["Set-Cookie"]
   end
 
   private
