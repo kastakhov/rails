@@ -1435,7 +1435,17 @@ module ActiveRecord #:nodoc:
         defaults.flatten!
         defaults << attribute_key_name.to_s.humanize
         options[:count] ||= 1
-        I18n.translate(defaults.shift, options.merge(:default => defaults, :scope => [:activerecord, :attributes]))
+        if RUBY_VERSION >= '2.7'
+          I18n.translate(
+            defaults.shift,
+            **options.merge(:default => defaults, :scope => [:activerecord, :attributes])
+          )
+        else
+          I18n.translate(
+            defaults.shift,
+            options.merge(:default => defaults, :scope => [:activerecord, :attributes])
+          )
+        end
       end
 
       # Transform the modelname into a more humane format, using I18n.
@@ -1447,7 +1457,17 @@ module ActiveRecord #:nodoc:
           :"#{klass.name.underscore}" if klass.name.present?
         end.compact
         defaults << self.name.humanize if self.name.present?
-        I18n.translate(defaults.shift, {:scope => [:activerecord, :models], :count => 1, :default => defaults}.merge(options))
+        if RUBY_VERSION >= '2.7'
+          I18n.translate(
+            defaults.shift,
+            **{:scope => [:activerecord, :models], :count => 1, :default => defaults}.merge(options)
+          )
+        else
+          I18n.translate(
+            defaults.shift,
+            {:scope => [:activerecord, :models], :count => 1, :default => defaults}.merge(options)
+          )
+        end
       end
 
       # True if this isn't a concrete subclass needing a STI type condition.

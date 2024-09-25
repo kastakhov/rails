@@ -40,7 +40,11 @@ module ActionView
 
             html_safe_options[:default] = MISSING_TRANSLATION unless html_safe_options[:default].blank?
 
-            translation = I18n.translate(qualified_key, html_safe_options)
+            translation = if RUBY_VERSION >= "2.7"
+                            I18n.translate(qualified_key, **html_safe_options)
+                          else
+                            I18n.translate(qualified_key, html_safe_options)
+                          end
 
             if translation.equal?(MISSING_TRANSLATION)
               options[:default].first
@@ -48,7 +52,11 @@ module ActionView
               translation.respond_to?(:html_safe) ? translation.html_safe : translation
             end
           else
-            I18n.translate(qualified_key, options)
+            if RUBY_VERSION >= "2.7"
+              I18n.translate(qualified_key, **options)
+            else
+              I18n.translate(qualified_key, options)
+            end
           end
         end
 
@@ -71,8 +79,14 @@ module ActionView
       alias :t :translate
 
       # Delegates to I18n.localize with no additional functionality.
-      def localize(*args)
-        I18n.localize(*args)
+      if RUBY_VERSION >= "2.7"
+        def localize(...)
+          I18n.localize(...)
+        end
+      else
+        def localize(*args)
+          I18n.localize(*args)
+        end
       end
       alias :l :localize
 

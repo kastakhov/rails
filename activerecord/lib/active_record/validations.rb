@@ -79,7 +79,11 @@ module ActiveRecord
         keys.compact!
 
         options.merge!(:default => keys)
-        I18n.translate(keys.shift, options)
+        if RUBY_VERSION >= '2.7'
+          I18n.translate(keys.shift, **options)
+        else
+          I18n.translate(keys.shift, options)
+        end
       end
 
       # Wraps an error message into a full_message format.
@@ -117,7 +121,11 @@ module ActiveRecord
         ]
 
         options.merge!(:default => keys, :message => self.message)
-        I18n.translate(keys.shift, options)
+        if RUBY_VERSION >= '2.7'
+          I18n.translate(keys.shift, **options)
+        else
+          I18n.translate(keys.shift, options)
+        end
       end
 
       # Return user options with default options.
