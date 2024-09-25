@@ -17,20 +17,23 @@ module ActiveSupport
         elsif arguments.last.respond_to?(:to_hash)
           options = @options.deep_merge(arguments.pop)
         else
-          options = @options.dup
+          options = @options
         end
 
         invoke_method(method, arguments, options, &block)
       end
-      def invoke_method(method, arguments, options, &block)
-        if RUBY_VERSION >= '2.7'
+
+      if RUBY_VERSION >= "2.7"
+        def invoke_method(method, arguments, options, &block)
           if options
             @context.__send__(method, *arguments, **options, &block)
           else
             @context.__send__(method, *arguments, &block)
           end
-        else
-          arguments << options if options
+        end
+      else
+        def invoke_method(method, arguments, options, &block)
+          arguments << options.dup if options
           @context.__send__(method, *arguments, &block)
         end
       end
